@@ -1,0 +1,38 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="CodeGenerator.MainWindow"
+        Title="CodeGenerator"
+		mc:Ignorable="d"
+		Width="300" Height="300"
+		WindowStartupLocation="CenterScreen">
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="*"/>
+			<RowDefinition Height="50"/>
+		</Grid.RowDefinitions>
+		<Border Grid.Row="0" Background="LightGray">
+			<DockPanel>
+				<Button
+					x:Name="btnStart"
+					Click="btnStartClick"
+					VerticalAlignment="Center"
+					HorizontalAlignment="Center"
+					Content="Start" />
+			</DockPanel>
+		</Border>
+		<Border Grid.Row="1" Background="LightGray">
+			<DockPanel>
+				<TextBlock
+					x:Name="show_msg"
+					FontSize="18"
+					TextWrapping="Wrap"
+					Text="Ready"
+					ToolTip.Tip="Ready"
+					HorizontalAlignment="Center"
+					VerticalAlignment="Center" />
+			</DockPanel>
+		</Border>
+	</Grid>
+</Window>

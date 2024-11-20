@@ -1,12 +1,15 @@
 ﻿//------------------------------------------------------------------------------
 // <author>Zhuo YuHan</author>
 // <email>1719700768@qq.com</email>
-// <date>2024/11/14 15:06:54</date>
+// <date>2024/11/12 16:14:16</date>
 //------------------------------------------------------------------------------
 
-namespace CodeGenerator.Core
+namespace Zyh.Common.Data
 {
-    public interface IEntity
+    public enum DatabaseType
     {
+        Dm = 1,
+        Mysql = 2,
+        OpenGauss = 3
     }
 }

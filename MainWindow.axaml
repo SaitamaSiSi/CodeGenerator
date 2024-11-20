@@ -3,26 +3,274 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Class="CodeGenerator.MainWindow"
+		xmlns:vm="using:CodeGenerator.Model"
+		xmlns:c="clr-namespace:CodeGenerator.ConvertUI"
         Title="CodeGenerator"
 		mc:Ignorable="d"
-		Width="300" Height="300"
-		WindowStartupLocation="CenterScreen">
+		Width="900" Height="450"
+		WindowStartupLocation="CenterScreen"
+		CanResize="False">
+	<Window.Resources>
+		<c:ConvertTool x:Key="convertTool" />
+	</Window.Resources>
+	<Window.Styles>
+		<Style Selector="Button:pointerover">
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="CheckBox:pointerover">
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="ComboBox:pointerover">
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="Button:focus">
+			<Setter Property="Background" Value="Gray"/>
+		</Style>
+	</Window.Styles>
 	<Grid>
 		<Grid.RowDefinitions>
+			<RowDefinition Height="50"/>
 			<RowDefinition Height="*"/>
 			<RowDefinition Height="50"/>
 		</Grid.RowDefinitions>
 		<Border Grid.Row="0" Background="LightGray">
 			<DockPanel>
+				<Label
+					Content="数据库类型:"
+					Margin="10 0 0 0"
+					VerticalAlignment="Center" />
+				<ComboBox
+					x:Name="db_type"
+					VerticalAlignment="Center"
+					Margin="0">
+					<ComboBoxItem Content="达梦" />
+					<ComboBoxItem Content="Mysql" />
+				</ComboBox>
+				<Label
+					Content="IP:"
+					Margin="10 0 0 0"
+					VerticalAlignment="Center" />
+				<TextBox
+						x:Name="db_ip"
+						Margin="0"
+						Width="120"
+						Height="20"
+						TabIndex="0" />
+				<Label
+					Content="端口:"
+					Margin="10 0 0 0"
+					VerticalAlignment="Center" />
+				<TextBox
+						x:Name="db_port"
+						Margin="0"
+						Width="60"
+						Height="20"
+						TabIndex="0" />
+				<Label
+					Content="账号:"
+					Margin="10 0 0 0"
+					VerticalAlignment="Center" />
+				<TextBox
+						x:Name="db_id"
+						Margin="0"
+						Width="100"
+						Height="20"
+						TabIndex="0" />
+				<Label
+					Content="密码:"
+					Margin="10 0 0 0"
+					VerticalAlignment="Center" />
+				<TextBox
+						x:Name="db_pwd"
+						Margin="0"
+						Width="100"
+						Height="20"
+						TabIndex="0" />
+				<Button
+					x:Name="btnConnect"
+					Click="btnConnectClick"
+					VerticalAlignment="Center"
+					Content="Connect"
+					Margin="10 0 0 0"/>
 				<Button
 					x:Name="btnStart"
 					Click="btnStartClick"
 					VerticalAlignment="Center"
-					HorizontalAlignment="Center"
-					Content="Start" />
+					Content="Start"
+					Margin="10 0 0 0"/>
 			</DockPanel>
 		</Border>
 		<Border Grid.Row="1" Background="LightGray">
+			<Grid ColumnDefinitions="1*,3*">
+				<Border Grid.Column="0" Background="WhiteSmoke">
+					<TreeView
+						Name="tv"
+						x:DataType="vm:TreeNode"
+						FontSize="12">
+						<TreeView.ItemTemplate>
+							<TreeDataTemplate
+								ItemsSource="{Binding SubNodes}"
+								x:DataType="vm:TreeNode">
+								<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+									<CheckBox
+										IsVisible="{Binding IsCheckable}"
+										IsChecked="{Binding IsChecked}"
+										VerticalAlignment="Center"
+										/>
+									<TextBlock
+										Text="{Binding Title}"
+										VerticalAlignment="Center"
+										/>
+								</StackPanel>
+							</TreeDataTemplate>
+						</TreeView.ItemTemplate>
+					</TreeView>
+				</Border>
+				<Border Grid.Column="1" Background="LightBlue">
+					<DataGrid
+						Name="dg"
+						HorizontalScrollBarVisibility="Auto"
+						x:DataType="vm:ColumnParam"
+						Background="Transparent"
+						SelectionMode="Extended"
+						CanUserSortColumns="False"
+						CanUserResizeColumns="False"
+						GridLinesVisibility="All"
+						BorderThickness="1"
+						BorderBrush="Gray">
+						<DataGrid.Columns>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="列名" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding Name}"
+													ToolTip.Tip="{Binding Name}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="字段类型" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding Type}"
+													ToolTip.Tip="{Binding Type}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="描述" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding Comments}"
+													ToolTip.Tip="{Binding Comments}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="类型长度" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding Length,Converter={StaticResource convertTool},ConverterParameter=Length}"
+													ToolTip.Tip="{Binding Length,Converter={StaticResource convertTool},ConverterParameter=Length}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="是否非空" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding IsNullable,Converter={StaticResource convertTool},ConverterParameter=IsNullable}"
+													ToolTip.Tip="{Binding IsNullable,Converter={StaticResource convertTool},ConverterParameter=IsNullable}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="是否主键" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding IsPrimaryKey,Converter={StaticResource convertTool},ConverterParameter=IsPrimaryKey}"
+													ToolTip.Tip="{Binding IsPrimaryKey,Converter={StaticResource convertTool},ConverterParameter=IsPrimaryKey}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
+						</DataGrid.Columns>
+					</DataGrid>
+				</Border>
+			</Grid>
+		</Border>
+		<Border Grid.Row="2" Background="LightGray">
 			<DockPanel>
 				<TextBlock
 					x:Name="show_msg"

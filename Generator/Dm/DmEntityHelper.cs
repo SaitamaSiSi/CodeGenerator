@@ -8,9 +8,8 @@ using CodeGenerator.Model;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
-using System.Data.Common;
 
-namespace CodeGenerator.Core
+namespace CodeGenerator.Generator.Dm
 {
     public class DmEntityHelper : CodeDomHelper
     {
@@ -18,7 +17,7 @@ namespace CodeGenerator.Core
 
         #region 私有Entity基础方法
 
-        private static CodeMemberMethod GetEntityCloneFromOrTo(List<System.String> columns, string className, bool isFrom)
+        private static CodeMemberMethod GetEntityCloneFromOrTo(List<string> columns, string className, bool isFrom)
         {
             //添加方法
             CodeMemberMethod method = new CodeMemberMethod();
@@ -156,7 +155,7 @@ namespace CodeGenerator.Core
             return myClass;
         }
 
-        public static void CreateEntityBaseMethod(CodeTypeDeclaration myClass, List<System.String> columns)
+        public static void CreateEntityBaseMethod(CodeTypeDeclaration myClass, List<string> columns)
         {
             string className = myClass.Name;
             CodeMemberMethod cloneFrom = GetEntityCloneFromOrTo(columns, className, true);

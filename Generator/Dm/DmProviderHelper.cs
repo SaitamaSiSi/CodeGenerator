@@ -12,7 +12,7 @@ using System.Data;
 using System.Data.Common;
 using System.Linq;
 
-namespace CodeGenerator.Core
+namespace CodeGenerator.Generator.Dm
 {
     public class DmProviderHelper : CodeDomHelper
     {
@@ -188,8 +188,8 @@ WHERE";
             method.Attributes = MemberAttributes.Public | MemberAttributes.Static;
             //添加一个参数
             method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(IDataReader).Name, "reader"));
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Int32).Name, "start"));
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Int32).Name, "length")
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int).Name, "start"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int).Name, "length")
             {
                 Direction = FieldDirection.Out
             });
@@ -340,7 +340,7 @@ WHERE";
             //访问类型
             method.Attributes = MemberAttributes.Public;
             //设置返回值类型：int/不设置则为void
-            method.ReturnType = new CodeTypeReference(typeof(Boolean).Name);
+            method.ReturnType = new CodeTypeReference(typeof(bool).Name);
 
             //设置返回值
             string retStr = Environment.NewLine + GetSpace(3) + $"using var cmd = DatabaseObject.GetSqlStringCommand(Exists_{className}_Sql);";
@@ -415,7 +415,7 @@ WHERE";
             //设置返回值类型：int/不设置则为void
             method.ReturnType = new CodeTypeReference($"List<{entityName}>");
             //添加一个参数
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(String).Name, "whereClause"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(string).Name, "whereClause"));
 
             //设置返回值
             string retStr = Environment.NewLine + GetSpace(3) + $"var result = new List<{entityName}>();"
@@ -449,9 +449,9 @@ WHERE";
             //设置返回值类型：int/不设置则为void
             method.ReturnType = new CodeTypeReference($"List<{entityName}>");
             //添加一个参数
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Int32).Name, "pageIndex"));
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Int32).Name, "pageSize"));
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(String).Name, "whereClause"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int).Name, "pageIndex"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int).Name, "pageSize"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(string).Name, "whereClause"));
 
             //设置返回值
             string retStr =
@@ -486,7 +486,7 @@ WHERE";
             //访问类型
             method.Attributes = MemberAttributes.Public;
             //设置返回值类型：int/不设置则为void
-            method.ReturnType = new CodeTypeReference(typeof(Int32).Name);
+            method.ReturnType = new CodeTypeReference(typeof(int).Name);
             //添加一个参数
             method.Parameters.Add(new CodeParameterDeclarationExpression(entityName, "ent"));
 
@@ -521,7 +521,7 @@ WHERE";
             //添加一个参数
             method.Parameters.Add(new CodeParameterDeclarationExpression($"IEnumerable<{entityName}>", "list"));
             //设置返回值类型：int/不设置则为void
-            method.ReturnType = new CodeTypeReference(typeof(Int32).Name);
+            method.ReturnType = new CodeTypeReference(typeof(int).Name);
             //设置返回值
             string retStr = GetSpace(3) + $"if (list == null || !list.Any())"
                 + Environment.NewLine + GetSpace(3) + "{"
@@ -572,7 +572,7 @@ WHERE";
             //添加一个参数
             method.Parameters.Add(new CodeParameterDeclarationExpression(entityName, "ent"));
             //设置返回值类型：int/不设置则为void
-            method.ReturnType = new CodeTypeReference(typeof(Int32).Name);
+            method.ReturnType = new CodeTypeReference(typeof(int).Name);
             //设置返回值
             string retStr = GetSpace(3) + "var parameters = BuildParameters(ent);"
                 + Environment.NewLine + GetSpace(3) + $"using var cmd = DatabaseObject.GetSqlStringCommand(Update_{className}_Sql) as DmCommand;"
@@ -592,7 +592,7 @@ WHERE";
             //访问类型
             method.Attributes = MemberAttributes.Public;
             //设置返回值类型：int/不设置则为void
-            method.ReturnType = new CodeTypeReference(typeof(Int32).Name);
+            method.ReturnType = new CodeTypeReference(typeof(int).Name);
 
             //设置返回值
             string retStr = Environment.NewLine + GetSpace(3) + $"using var cmd = DatabaseObject.GetSqlStringCommand(Delete_{className}_Sql);";

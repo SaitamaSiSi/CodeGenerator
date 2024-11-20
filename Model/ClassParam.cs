@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Zyh.Common.Data;
 
 namespace CodeGenerator.Model
 {
@@ -15,7 +16,7 @@ namespace CodeGenerator.Model
 
         public string TableName { get; set; } = string.Empty;
 
-        public string Database { get; set; } = string.Empty;
+        public DatabaseType Database { get; set; }
 
         public string ClassName { get; set; } = string.Empty;
 

@@ -45,6 +45,12 @@ namespace Zyh.Common.Data
             return ctx;
         }
 
+        public static void ClearCurrent()
+        {
+            Local.Value?.Dispose();
+            Local.Value = null;
+        }
+
         public DataContextScope Begin()
         {
             return Begin(false);

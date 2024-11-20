@@ -1,7 +1,4 @@
 ﻿//------------------------------------------------------------------------------
-// <copyright file="DmServiceHelper.cs" company="CQ ULIT Co., Ltd.">
-//    Copyright (c) 2024, Chongqing Youliang Science & Technology Co., Ltd. All rights reserved.
-// </copyright>
 // <author>Zhuo YuHan</author>
 // <email>1719700768@qq.com</email>
 // <date>2024/11/18 16:29:11</date>
@@ -12,10 +9,8 @@ using System;
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CodeGenerator.Core
+namespace CodeGenerator.Generator.Dm
 {
     public class DmServiceHelper : CodeDomHelper
     {
@@ -134,8 +129,8 @@ namespace CodeGenerator.Core
             //设置返回值类型：int/不设置则为void
             method.ReturnType = new CodeTypeReference($"List<{entityName}>");
             //添加一个参数
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Int32).Name, "pageIndex"));
-            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(Int32).Name, "pageSize"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int).Name, "pageIndex"));
+            method.Parameters.Add(new CodeParameterDeclarationExpression(typeof(int).Name, "pageSize"));
             method.Parameters.Add(new CodeParameterDeclarationExpression("String", "whereClause"));
 
             //设置返回值

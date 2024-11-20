@@ -13,7 +13,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace CodeGenerator.Core
+namespace CodeGenerator.Generator
 {
     public class CodeDomHelper
     {
@@ -31,7 +31,7 @@ namespace CodeGenerator.Core
             return space;
         }
 
-        protected static string ConvertToCamelCase(string str, bool isFirstLower = false)
+        public static string ConvertToCamelCase(string str, bool isFirstLower = false)
         {
             if (string.IsNullOrEmpty(str))
                 return str;

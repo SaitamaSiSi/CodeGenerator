@@ -1,15 +1,14 @@
 ﻿//------------------------------------------------------------------------------
 // <author>Zhuo YuHan</author>
 // <email>1719700768@qq.com</email>
-// <date>2024/11/12 16:14:16</date>
+// <date>2024/11/20 14:35:50</date>
 //------------------------------------------------------------------------------
 
-namespace Zyh.Common.Data
+namespace CodeGenerator.Core
 {
-    public enum ZyhDbType
+    public enum CmdResCode
     {
-        Dm = 1,
-        Mysql = 2,
-        OpenGauss = 3
+        失败 = 0,
+        成功 = 1
     }
 }

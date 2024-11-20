@@ -22,9 +22,9 @@ namespace Zyh.Common.Data
         private DbTransaction? _dbTransaction;
         private readonly DbProviderFactory? _dbProviderFactory;
         private readonly Database _database;
-        private readonly ZyhDbType _databaseType = ZyhDbType.Dm;
+        private readonly DatabaseType _databaseType = DatabaseType.Dm;
 
-        public ZyhDbType DatabaseType { get { return _databaseType; } }
+        public DatabaseType DatabaseType { get { return _databaseType; } }
 
         public virtual Database DatabaseObject
         {
@@ -44,9 +44,13 @@ namespace Zyh.Common.Data
             // 创建数据库连接
             _connectionString = Environment.GetEnvironmentVariable(connectionName);
             var providerName = Environment.GetEnvironmentVariable(connectionName + ".ProviderName");
-            if (string.Equals(providerName, "DmClientFactory"))
+            if (string.Equals(providerName, "DmClientFactory", StringComparison.OrdinalIgnoreCase))
             {
-                _databaseType = ZyhDbType.Dm;
+                _databaseType = DatabaseType.Dm;
+            }
+            else if (string.Equals(providerName, "MySqlConnector", StringComparison.OrdinalIgnoreCase))
+            {
+                _databaseType = DatabaseType.Mysql;
             }
             _dbProviderFactory = DbProviderFactories.GetFactory(providerName);
             _database = new Database(_connectionString, _dbProviderFactory);

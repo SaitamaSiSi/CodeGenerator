@@ -137,7 +137,7 @@ WHERE";
 
         private static string GetReaderSentence(ColumnParam column, ref int index, bool flag = false)
         {
-            string cSharpType = GetCSharpType(column.Type);
+            string cSharpType = DmToCSharpByType(column.Type);
             string sentence = $"{(string.Equals(column.IsNullable, "Y") ? $"({cSharpType}?)" : "")}";
 
             switch (cSharpType)
@@ -260,7 +260,7 @@ WHERE";
             foreach (var col in columns)
             {
                 string colName = ConvertToCamelCase(col.Name);
-                retStr += Environment.NewLine + GetSpace(3) + $"paramList[{index++}] = new DmParameter(\"{colName}\", {GetDmDbType(col.Type)}) " + "{" + $" Value = ent.{col.Name}, Direction = ParameterDirection.Input " + "};";
+                retStr += Environment.NewLine + GetSpace(3) + $"paramList[{index++}] = new DmParameter(\"{colName}\", {DmToDbType(col.Type)}) " + "{" + $" Value = ent.{col.Name}, Direction = ParameterDirection.Input " + "};";
             }
 
             retStr += Environment.NewLine + GetSpace(3) + "return paramList;";
@@ -294,7 +294,7 @@ WHERE";
             foreach (var col in columns)
             {
                 string colName = col.Name; // ConvertToCamelCase(col.Name);
-                retStr += Environment.NewLine + GetSpace(4) + $"paramList.Add(new DmParameter($\"{col.Name.ToLower()}_" + "{index}\", " + $"{GetDmDbType(col.Type)}) " + "{" + $" Value = ent.{colName}, Direction = ParameterDirection.Input " + "});";
+                retStr += Environment.NewLine + GetSpace(4) + $"paramList.Add(new DmParameter($\"{col.Name.ToLower()}_" + "{index}\", " + $"{DmToDbType(col.Type)}) " + "{" + $" Value = ent.{colName}, Direction = ParameterDirection.Input " + "});";
             }
 
             retStr += Environment.NewLine + GetSpace(3) + "}"
@@ -322,7 +322,7 @@ WHERE";
             foreach (var col in columns)
             {
                 string colName = col.Name; // ConvertToCamelCase(col.Name);
-                retStr += Environment.NewLine + GetSpace(3) + $"paramList[{index++}] = new DmParameter(\"{colName}\", {GetDmDbType(col.Type)}) " + "{" + $" Value = ent.{colName}, Direction = ParameterDirection.Input " + "};";
+                retStr += Environment.NewLine + GetSpace(3) + $"paramList[{index++}] = new DmParameter(\"{colName}\", {DmToDbType(col.Type)}) " + "{" + $" Value = ent.{colName}, Direction = ParameterDirection.Input " + "};";
             }
 
             retStr += Environment.NewLine + GetSpace(3) + "return paramList;";
@@ -348,11 +348,11 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = GetCSharpType(keyColumn.Type);
+                string cSharpType = DmToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
-                string dmDbType = GetDmDbType(keyColumn.Type);
+                string dmDbType = DmToDbType(keyColumn.Type);
                 retStr += Environment.NewLine + GetSpace(3) + $"cmd.Parameters.Add(new DmParameter(\"{colName}\", {dmDbType}) " + "{" + $" Value = {paramName}, Direction = ParameterDirection.Input " + "});";
             }
 
@@ -382,11 +382,11 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = GetCSharpType(keyColumn.Type);
+                string cSharpType = DmToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
-                string dmDbType = GetDmDbType(keyColumn.Type);
+                string dmDbType = DmToDbType(keyColumn.Type);
                 retStr += Environment.NewLine + GetSpace(3) + $"cmd.Parameters.Add(new DmParameter(\"{colName}\", {dmDbType}) " + "{" + $" Value = {paramName}, Direction = ParameterDirection.Input " + "});";
             }
 
@@ -496,7 +496,7 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string colName = ConvertToCamelCase(keyColumn.Name);
-                string dmDbType = GetDmDbType(keyColumn.Type);
+                string dmDbType = DmToDbType(keyColumn.Type);
                 retStr += Environment.NewLine + GetSpace(3) + $"cmd.Parameters.Add(new DmParameter(\"{colName}\", {dmDbType}) " + "{" + $" Value = ent.{keyColumn.Name}, Direction = ParameterDirection.Input " + "});";
             }
 
@@ -601,11 +601,11 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = GetCSharpType(keyColumn.Type);
+                string cSharpType = DmToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
-                string dmDbType = GetDmDbType(keyColumn.Type);
+                string dmDbType = DmToDbType(keyColumn.Type);
                 retStr += Environment.NewLine + GetSpace(3) + $"cmd.Parameters.Add(new DmParameter(\"{colName}\", {dmDbType}) " + "{" + $" Value = {paramName}, Direction = ParameterDirection.Input " + "});";
             }
 

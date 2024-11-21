@@ -13,7 +13,7 @@ namespace CodeGenerator.Hand
     {
         public ResultMessage<CmdResCode> Handle(MysqlCmd command)
         {
-            return ResultMessage<CmdResCode>.Successful("成功", command.Code);
+            return ResultMessage<CmdResCode>.Successful("Mysql暂未实现", command.Code);
         }
     }
 }

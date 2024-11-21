@@ -19,7 +19,7 @@ namespace CodeGenerator.Hand
                 DmGenerator.CreateEntities(item);
             }
 
-            return ResultMessage<CmdResCode>.Successful("成功", command.Code);
+            return ResultMessage<CmdResCode>.Successful("生成完毕", command.Code);
         }
     }
 }

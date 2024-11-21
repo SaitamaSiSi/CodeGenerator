@@ -4,19 +4,19 @@
 // <date>2024/11/14 14:19:43</date>
 //------------------------------------------------------------------------------
 
-using CodeGenerator.Model;
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
+using Zyh.Common.Data;
 
 namespace CodeGenerator.Generator
 {
     public class CodeDomHelper
     {
+        public static DatabaseType DbType = DatabaseType.Dm;
+
         #region 辅助方法
 
         protected static string GetSpace(int num)
@@ -69,7 +69,7 @@ namespace CodeGenerator.Generator
             return sb.ToString();
         }
 
-        protected static string GetCSharpType(string dmDataType)
+        protected static string DmToCSharpByType(string dmDataType)
         {
             switch (dmDataType.ToUpper())
             {
@@ -97,7 +97,7 @@ namespace CodeGenerator.Generator
             }
         }
 
-        protected static string GetDmDbType(string dmDataType)
+        protected static string DmToDbType(string dmDataType)
         {
             switch (dmDataType.ToUpper())
             {

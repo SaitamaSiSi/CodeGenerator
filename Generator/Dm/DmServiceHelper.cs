@@ -40,7 +40,7 @@ namespace CodeGenerator.Generator.Dm
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = GetCSharpType(keyColumn.Type);
+                string cSharpType = DmToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -78,7 +78,7 @@ namespace CodeGenerator.Generator.Dm
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = GetCSharpType(keyColumn.Type);
+                string cSharpType = DmToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -259,7 +259,7 @@ namespace CodeGenerator.Generator.Dm
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = GetCSharpType(keyColumn.Type);
+                string cSharpType = DmToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);

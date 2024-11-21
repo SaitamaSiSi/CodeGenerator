@@ -14,6 +14,9 @@ using CodeGenerator.Generator;
 using CodeGenerator.Core;
 using CodeGenerator.Command;
 using Yitter.IdGenerator;
+using System.Threading;
+using System.Drawing;
+using Avalonia.Controls.Generators;
 
 namespace CodeGenerator
 {
@@ -31,6 +34,9 @@ namespace CodeGenerator
             InitData();
         }
 
+        /// <summary>
+        /// 初始化组件
+        /// </summary>
         private void InitComponents()
         {
             Closing += MainWindow_Closing;
@@ -39,6 +45,9 @@ namespace CodeGenerator
             db_type.SelectionChanged += OnDbTypeChanged;
             db_port.TextChanging += PortChanging;
             tv.SelectionChanged += OnSelectionChanged;
+
+            DbProviderFactories.RegisterFactory("DmClientFactory", Dm.DmClientFactory.Instance);
+            DbProviderFactories.RegisterFactory("MySqlConnector", MySqlConnector.MySqlConnectorFactory.Instance);
 
             // 创建 IdGeneratorOptions 对象，可在构造函数中输入 WorkerId：
             var options = new IdGeneratorOptions();
@@ -51,6 +60,9 @@ namespace CodeGenerator
             YitIdHelper.SetIdGenerator(options);
         }
 
+        /// <summary>
+        /// 初始化数据
+        /// </summary>
         private void InitData()
         {
             // 初始化数据库连接信息
@@ -59,10 +71,16 @@ namespace CodeGenerator
             db_port.Text = "5236";
             db_id.Text = "SYSDBA";
             db_pwd.Text = "654#@!qaz";
-            DbProviderFactories.RegisterFactory("DmClientFactory", Dm.DmClientFactory.Instance);
-            DbProviderFactories.RegisterFactory("MySqlConnector", MySqlConnector.MySqlConnectorFactory.Instance);
         }
 
+        #endregion
+
+        #region 数据库辅助方法
+
+        /// <summary>
+        /// 根据控件设置数据库信息
+        /// </summary>
+        /// <returns></returns>
         private bool SetDbConn()
         {
             if (!RegexHelper.IsValidIPv4(db_ip.Text ?? string.Empty))
@@ -74,6 +92,9 @@ namespace CodeGenerator
             config.Port = Convert.ToInt32(db_port.Text);
             config.UserName = db_id.Text ?? string.Empty;
             config.Password = db_pwd.Text ?? string.Empty;
+            CodeDomHelper.DbType = config.DbType;
+            tv.ItemsSource = new List<string>();
+            dg.ItemsSource = new List<string>();
             if (config.DbType == DatabaseType.Dm)
             {
                 Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "DmClientFactory");
@@ -87,10 +108,6 @@ namespace CodeGenerator
 
             return true;
         }
-
-        #endregion
-
-        #region 数据库辅助方法
 
         /// <summary>
         /// 查询某模式下的所有表信息
@@ -170,12 +187,18 @@ namespace CodeGenerator
 
         #region 辅助方法
 
-        private void ChangeShowMsg(string msg)
+        /// <summary>
+        /// 修改页面提示信息
+        /// </summary>
+        /// <param name="msg"></param>
+        /// <param name="func"></param>
+        private void ChangeShowMsg(string msg, Action? func = null)
         {
             Dispatcher.UIThread.InvokeAsync(() =>
             {
                 show_msg.Text = $"{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")} | {msg}";
                 ToolTip.SetTip(show_msg, show_msg.Text);
+                func?.Invoke();
             });
         }
 
@@ -183,6 +206,11 @@ namespace CodeGenerator
 
         #region 控件触发事件
 
+        /// <summary>
+        /// 数据库类型改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnDbTypeChanged(object sender, SelectionChangedEventArgs e)
         {
             if (e.AddedItems.Count > 0)
@@ -199,6 +227,11 @@ namespace CodeGenerator
             }
         }
 
+        /// <summary>
+        /// 端口改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void PortChanging(object? sender, TextChangingEventArgs e)
         {
             // 使用正则表达式确保只输入数字
@@ -219,6 +252,11 @@ namespace CodeGenerator
             }
         }
 
+        /// <summary>
+        /// 树状表格选中改变
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var ent = tv.SelectedItem as TreeNode;
@@ -240,6 +278,11 @@ namespace CodeGenerator
                     }
                     ent.SubNodes.Clear();
                     ent.SubNodes = tableNodes;
+                    //tv.ItemContainerGenerator.ItemContainerPrepared(tv, ent);
+                    if (tableNodes.Count > 0 && tv.SelectedItem is TreeViewItem selItem)
+                    {
+                        selItem.IsExpanded = true;
+                    }
                 }
                 else if (ent.Level == 1)
                 {
@@ -250,6 +293,11 @@ namespace CodeGenerator
             }
         }
 
+        /// <summary>
+        /// 连接按钮事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnConnectClick(object sender, RoutedEventArgs e)
         {
             if (!SetDbConn())
@@ -269,6 +317,11 @@ namespace CodeGenerator
             }
         }
 
+        /// <summary>
+        /// 开始按钮事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void btnStartClick(object sender, RoutedEventArgs e)
         {
             var treeNodes = tv.ItemsSource?.Cast<TreeNode>().ToList();
@@ -300,39 +353,61 @@ namespace CodeGenerator
                 if (list.Count == 0)
                 {
                     ChangeShowMsg("没有选中表");
+                    return;
                 }
-                else
-                {
-                    ChangeShowMsg("生成中");
-                }
+                ChangeShowMsg("生成中");
+                btnStart.IsEnabled = false;
                 _ = Task.Factory.StartNew((obj) =>
                 {
                     Tuple<DatabaseType, List<ClassParam>>? tuple = (Tuple<DatabaseType, List<ClassParam>>?)obj;
+                    void action() { btnStart.IsEnabled = true; }
                     if (tuple != null)
                     {
                         DatabaseType currentType = tuple.Item1;
                         List<ClassParam> classes = tuple.Item2;
                         if (currentType == DatabaseType.Dm)
                         {
-                            CommandBus.Execute<DmCmd, CmdResCode>(new DmCmd() { Command = DatabaseType.Dm, Classes = classes });
-                            ChangeShowMsg("生成成功");
+                            var res = CommandBus.Execute<DmCmd, CmdResCode>(new DmCmd() { Command = DatabaseType.Dm, Classes = classes });
+                            ChangeShowMsg(res.Msg, action);
+                        }
+                        else if (currentType == DatabaseType.Mysql)
+                        {
+                            var res = CommandBus.Execute<MysqlCmd, CmdResCode>(new MysqlCmd() { Command = DatabaseType.Mysql, Classes = classes });
+                            ChangeShowMsg(res.Msg, action);
                         }
                         else
                         {
-                            ChangeShowMsg("方法暂未实现");
+                            ChangeShowMsg("未知数据库类型", action);
                         }
+                    }
+                    else
+                    {
+                        ChangeShowMsg("生成失败，实体对象不可为空", action);
                     }
                 }, Tuple.Create(config.DbType, list));
             }
-            ChangeShowMsg("没有模式");
+            else
+            {
+                ChangeShowMsg("没有模式");
+            }
         }
 
+        /// <summary>
+        /// 程序关闭中事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Closing(object? sender, WindowClosingEventArgs e)
         {
             // 不退出
             // e.Cancel = true;
         }
 
+        /// <summary>
+        /// 程序关闭后事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MainWindow_Closed(object? sender, EventArgs e)
         {
             DataContextScope.ClearCurrent();

@@ -175,7 +175,7 @@ namespace CodeGenerator.Generator.Dm
             foreach (var item in columns)
             {
                 string fieldName = ConvertToCamelCase(item.Name);
-                string cSharpType = GetCSharpType(item.Type) + (string.Equals(item.IsNullable, "Y") ? "?" : "");
+                string cSharpType = DmToCSharpByType(item.Type) + (string.Equals(item.IsNullable, "Y") ? "?" : "");
                 CodeMemberField field = new CodeMemberField(cSharpType, fieldName);
                 //设置访问类型
                 field.Attributes = MemberAttributes.Private;

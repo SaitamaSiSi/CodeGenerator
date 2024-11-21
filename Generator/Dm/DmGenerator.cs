@@ -45,7 +45,7 @@ namespace CodeGenerator.Generator.Dm
         {
             CodeCompileUnit generateUnit = new CodeCompileUnit();
             CodeTypeDeclaration generateClass = DmProviderHelper.CreateGenerateProviderClass(generateUnit, param);
-            DmProviderHelper.CreateProviderMethod(generateClass, param.ClassName, param.TableName, param.Parameters, param.TableKey);
+            DmProviderHelper.CreateProviderMethod(generateClass, param.ClassName, param.TableName, param.Parameters, param.GetPrimaryKeys());
             CodeDomHelper.SaveClass(generateUnit, param.ClassName, DmProviderHelper.SqlProvierBase);
 
             CodeCompileUnit normalUnit = new CodeCompileUnit();
@@ -57,7 +57,7 @@ namespace CodeGenerator.Generator.Dm
         {
             CodeCompileUnit generateUnit = new CodeCompileUnit();
             CodeTypeDeclaration generateClass = DmServiceHelper.CreateGenerateServiceClass(generateUnit, param);
-            DmServiceHelper.CreateServiceMethod(generateClass, param.ClassName, param.Parameters, param.TableKey);
+            DmServiceHelper.CreateServiceMethod(generateClass, param.ClassName, param.Parameters, param.GetPrimaryKeys());
             CodeDomHelper.SaveClass(generateUnit, param.ClassName, DmServiceHelper.SqlServiceBase);
 
             CodeCompileUnit normalUnit = new CodeCompileUnit();

@@ -1,12 +1,14 @@
 ﻿//------------------------------------------------------------------------------
 // <author>Zhuo YuHan</author>
 // <email>1719700768@qq.com</email>
-// <date>2024/11/14 15:06:54</date>
+// <date>2024/11/12 15:31:25</date>
 //------------------------------------------------------------------------------
 
-namespace Zyh.Common.Entity
+using Zyh.Common.Entity;
+
+namespace Zyh.Common.Service
 {
-    public interface IEntity
+    public class SqlServiceBase<T> where T : IEntity
     {
     }
 }

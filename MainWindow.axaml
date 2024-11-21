@@ -265,6 +265,27 @@
 									</DataTemplate>
 								</DataGridTemplateColumn.CellTemplate>
 							</DataGridTemplateColumn>
+							<DataGridTemplateColumn Width="*" IsReadOnly="True">
+								<DataGridTemplateColumn.Header>
+									<TextBlock Text="是否自增" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+								</DataGridTemplateColumn.Header>
+								<DataGridTemplateColumn.CellTemplate>
+									<DataTemplate x:DataType="vm:ColumnParam">
+										<Border Background="Transparent">
+											<StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" >
+												<TextBlock
+													Foreground="Black"
+													Text="{Binding IsAutoIncrement,Converter={StaticResource convertTool},ConverterParameter=IsAutoIncrement}"
+													ToolTip.Tip="{Binding IsAutoIncrement,Converter={StaticResource convertTool},ConverterParameter=IsAutoIncrement}"
+													TextTrimming="CharacterEllipsis"
+													HorizontalAlignment="Center"
+													VerticalAlignment="Center"
+													/>
+											</StackPanel>
+										</Border>
+									</DataTemplate>
+								</DataGridTemplateColumn.CellTemplate>
+							</DataGridTemplateColumn>
 						</DataGrid.Columns>
 					</DataGrid>
 				</Border>

@@ -5,7 +5,7 @@ using CodeGenerator.Model;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using Zyh.Common.Data;
+using Zyh.Common.Entity;
 using System.Linq;
 using System.Data;
 using System.Text.RegularExpressions;
@@ -14,9 +14,6 @@ using CodeGenerator.Generator;
 using CodeGenerator.Core;
 using CodeGenerator.Command;
 using Yitter.IdGenerator;
-using System.Threading;
-using System.Drawing;
-using Avalonia.Controls.Generators;
 
 namespace CodeGenerator
 {
@@ -343,7 +340,6 @@ namespace CodeGenerator
                                 table.Columns = GetTableColumns(schame.Title, table.Title);
                             }
                             param.Parameters = table.Columns;
-                            param.TableKey = table.Columns.Where(m => m.IsPrimaryKey).Select(m => m.Name).ToList();
                             table.IsChecked = false;
                             list.Add(param);
                         }

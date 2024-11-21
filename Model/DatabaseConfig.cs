@@ -4,7 +4,7 @@
 // <date>2024/11/19 16:39:23</date>
 //------------------------------------------------------------------------------
 
-using Zyh.Common.Data;
+using Zyh.Common.Entity;
 
 namespace CodeGenerator.Model
 {
@@ -90,15 +90,23 @@ SELECT DISTINCT
     t.DATA_TYPE AS Type,
     c.COMMENTS AS Comments,
     t.DATA_LENGTH AS Length,
-    t.NULLABLE AS IsNullable
+    t.NULLABLE AS IsNullable,
+    CASE WHEN d.NAME = t.COLUMN_NAME THEN TRUE ELSE FALSE END AS IsAutoIncrement
 FROM 
     ALL_TAB_COLUMNS t
 INNER JOIN 
-    ALL_COL_COMMENTS c ON t.TABLE_NAME = c.TABLE_NAME AND t.COLUMN_NAME = c.COLUMN_NAME
+    ALL_COL_COMMENTS c
+     ON t.TABLE_NAME = c.TABLE_NAME AND t.COLUMN_NAME = c.COLUMN_NAME
+LEFT JOIN
+(
+    select b.table_name,a.name from  SYS.SYSCOLUMNS a,all_tables b,sys.sysobjects c where a.INFO2 & 0x01 = 0x01 
+    and a.id=c.id and c.name= b.table_name and c.name = '{tableName}' and b.OWNER = '{schemaName}'
+) d on t.TABLE_NAME = d.TABLE_NAME
 WHERE 
     t.OWNER = '{schemaName}' AND t.TABLE_NAME = '{tableName}'
 GROUP BY 
     t.COLUMN_ID;
+    
 ";
             }
             else if (DbType == DatabaseType.Mysql)

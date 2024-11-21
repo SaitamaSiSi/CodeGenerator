@@ -17,6 +17,7 @@ Int32：NUMBER、DECIMAL、INT、INTEGER、
 Double：FLOAT、DOUBLE PRECISION、
 DateTime：DATE、TIMESTAMP、
 Boolean：BOOLEAN、TINYINT
+Byte[]：BLOB
 
 注册以下数据库信息：
 DbProviderFactories.RegisterFactory("DmClientFactory", Dm.DmClientFactory.Instance);

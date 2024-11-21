@@ -12,7 +12,7 @@ using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 
-namespace Zyh.Common.Data
+namespace Zyh.Common.Entity
 {
     public class DataContext : IDisposable
     {

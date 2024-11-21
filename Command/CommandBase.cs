@@ -7,7 +7,7 @@
 using CodeGenerator.Core;
 using CodeGenerator.Model;
 using System.Collections.Generic;
-using Zyh.Common.Data;
+using Zyh.Common.Entity;
 
 namespace CodeGenerator.Command
 {

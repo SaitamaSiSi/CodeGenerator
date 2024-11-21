@@ -71,9 +71,22 @@ WHERE";
 
         private static string Insert_DataDict_Sql(string className, string tableName, List<string> columns)
         {
-            string sql = $"INSERT INTO {tableName}{Environment.NewLine}VALUES{Environment.NewLine}";
+            string sql = $"INSERT INTO {tableName}{Environment.NewLine}(";
 
             int index = 0;
+            foreach (var col in columns)
+            {
+                sql += col;
+                if (index < columns.Count - 1)
+                {
+                    sql += ", ";
+                }
+                index++;
+            }
+
+            sql += $") VALUES{Environment.NewLine}";
+
+            index = 0;
             sql += "(";
             foreach (var col in columns)
             {
@@ -321,8 +334,8 @@ WHERE";
             int index = 0;
             foreach (var col in columns)
             {
-                string colName = col.Name; // ConvertToCamelCase(col.Name);
-                retStr += Environment.NewLine + GetSpace(3) + $"paramList[{index++}] = new DmParameter(\"{colName}\", {DmToDbType(col.Type)}) " + "{" + $" Value = ent.{colName}, Direction = ParameterDirection.Input " + "};";
+                string colName = ConvertToCamelCase(col.Name);
+                retStr += Environment.NewLine + GetSpace(3) + $"paramList[{index++}] = new DmParameter(\"{colName}\", {DmToDbType(col.Type)}) " + "{" + $" Value = ent.{col.Name}, Direction = ParameterDirection.Input " + "};";
             }
 
             retStr += Environment.NewLine + GetSpace(3) + "return paramList;";
@@ -476,7 +489,7 @@ WHERE";
             return method;
         }
 
-        private static CodeMemberMethod GetProviderAdd1(string className, List<ColumnParam> keyColumns)
+        private static CodeMemberMethod GetProviderAdd1(string className)
         {
             string entityName = className + DmEntityHelper.Entity;
             //添加方法
@@ -491,20 +504,11 @@ WHERE";
             method.Parameters.Add(new CodeParameterDeclarationExpression(entityName, "ent"));
 
             //设置返回值
-            string retStr = Environment.NewLine + GetSpace(3) + $"using var cmd = DatabaseObject.GetSqlStringCommand(Insert_{className}_Sql) as DmCommand;";
-
-            foreach (var keyColumn in keyColumns)
-            {
-                string colName = ConvertToCamelCase(keyColumn.Name);
-                string dmDbType = DmToDbType(keyColumn.Type);
-                retStr += Environment.NewLine + GetSpace(3) + $"cmd.Parameters.Add(new DmParameter(\"{colName}\", {dmDbType}) " + "{" + $" Value = ent.{keyColumn.Name}, Direction = ParameterDirection.Input " + "});";
-            }
-
-            retStr += Environment.NewLine + GetSpace(3) + "var nonKeyParams = BuildParametersForNonKey(ent);"
+            string retStr = Environment.NewLine + GetSpace(3) + $"using var cmd = DatabaseObject.GetSqlStringCommand(Insert_{className}_Sql) as DmCommand;"
+                + Environment.NewLine + GetSpace(3) + "var nonKeyParams = BuildParametersForNonKey(ent);"
                 + Environment.NewLine + GetSpace(3) + "cmd.Parameters.AddRange(nonKeyParams);"
-                + Environment.NewLine + GetSpace(3) + "var execResult = DataContextObject.ExecuteNonQuery(cmd);";
-
-            retStr += Environment.NewLine + GetSpace(3) + "return execResult;";
+                + Environment.NewLine + GetSpace(3) + "var execResult = DataContextObject.ExecuteNonQuery(cmd);"
+                + Environment.NewLine + GetSpace(3) + "return execResult;";
             method.Statements.Add(new CodeSnippetStatement(retStr));
 
             return method;
@@ -647,14 +651,15 @@ WHERE";
             CodeTypeReference iTypeRef = new CodeTypeReference($"{SqlProvierBase}<{param.ClassName}{DmEntityHelper.Entity}>");
             myClass.BaseTypes.Add(iTypeRef);
 
+            var tableKeys = param.GetPrimaryKeys();
             myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + TableName(param.TableName)));
-            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Exists_DataDict_Sql(param.ClassName, param.TableName, param.TableKey)));
-            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Get_DataDict_Sql(param.ClassName, param.TableName, param.TableKey)));
+            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Exists_DataDict_Sql(param.ClassName, param.TableName, tableKeys)));
+            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Get_DataDict_Sql(param.ClassName, param.TableName, tableKeys)));
             myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Find_DataDict_Sql(param.ClassName, param.TableName)));
             myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + GetPager_DataDict_Sql(param.ClassName, param.TableName)));
-            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Insert_DataDict_Sql(param.ClassName, param.TableName, param.GetNames())));
-            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Update_DataDict_Sql(param.ClassName, param.TableName, param.TableKey, param.GetNames())));
-            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Delete_DataDict_Sql(param.ClassName, param.TableName, param.TableKey)));
+            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Insert_DataDict_Sql(param.ClassName, param.TableName, param.GetNames(false))));
+            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Update_DataDict_Sql(param.ClassName, param.TableName, tableKeys, param.GetNames(false, false))));
+            myClass.Members.Add(new CodeSnippetTypeMember(GetSpace(2) + Delete_DataDict_Sql(param.ClassName, param.TableName, tableKeys)));
 
             //添加构造方法
             CodeConstructor constructor1 = new CodeConstructor();
@@ -735,7 +740,7 @@ WHERE";
             CodeMemberMethod get = GetProviderGet(className, keyColumns);
             CodeMemberMethod findAll = GetProviderFindAll(className);
             CodeMemberMethod getPager = GetProviderGetPager(className);
-            CodeMemberMethod add1 = GetProviderAdd1(className, keyColumns);
+            CodeMemberMethod add1 = GetProviderAdd1(className);
             CodeMemberMethod add2 = GetProviderAdd2(entityName, tableName, columns);
             CodeMemberMethod update = GetProviderUpdate(className);
             CodeMemberMethod delete = GetProviderDelete(className, keyColumns);

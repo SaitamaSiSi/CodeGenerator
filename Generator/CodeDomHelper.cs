@@ -9,7 +9,7 @@ using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Text;
-using Zyh.Common.Data;
+using Zyh.Common.Entity;
 
 namespace CodeGenerator.Generator
 {
@@ -94,6 +94,8 @@ namespace CodeGenerator.Generator
                 case "BOOLEAN":
                 case "TINYINT":
                     return "Boolean";
+                case "BLOB":
+                    return "Byte[]";
             }
         }
 
@@ -127,6 +129,8 @@ namespace CodeGenerator.Generator
                 case "BOOLEAN":
                 case "TINYINT":
                     return "Dm.DmDbType.Byte";
+                case "BLOB":
+                    return "Dm.DmDbType.Blob";
             }
         }
 

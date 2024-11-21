@@ -4,7 +4,7 @@
 // <date>2024/11/12 16:14:16</date>
 //------------------------------------------------------------------------------
 
-namespace Zyh.Common.Data
+namespace Zyh.Common.Entity
 {
     public enum DatabaseType
     {

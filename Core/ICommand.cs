@@ -4,7 +4,7 @@
 // <date>2024/11/20 14:20:59</date>
 //------------------------------------------------------------------------------
 
-using Zyh.Common.Data;
+using Zyh.Common.Entity;
 
 namespace CodeGenerator.Core
 {

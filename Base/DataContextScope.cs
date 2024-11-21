@@ -8,7 +8,7 @@ using System;
 using System.Data;
 using System.Threading;
 
-namespace Zyh.Common.Data
+namespace Zyh.Common.Entity
 {
     public class DataContextScope : IDisposable
     {

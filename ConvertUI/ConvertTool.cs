@@ -29,6 +29,7 @@ namespace CodeGenerator.ConvertUI
                     switch (sTargetCase)
                     {
                         case "IsPrimaryKey":
+                        case "IsAutoIncrement":
                             return bSourceText ? "是" : "否";
                     }
                 }

@@ -8,7 +8,7 @@ using System.Data;
 using System;
 using System.Data.Common;
 
-namespace Zyh.Common.Data
+namespace Zyh.Common.Entity
 {
     public class Database
     {

@@ -99,5 +99,19 @@ namespace CodeGenerator.Model
             }
         }
 
+        private bool isAutoIncrement { get; set; }
+        public bool IsAutoIncrement
+        {
+            get
+            {
+                return isAutoIncrement;
+            }
+            set
+            {
+                isAutoIncrement = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("IsAutoIncrement"));
+            }
+        }
+
     }
 }

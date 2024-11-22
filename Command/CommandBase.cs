@@ -17,6 +17,8 @@ namespace CodeGenerator.Command
 
         public CmdResCode Code { get; set; } = CmdResCode.成功;
 
+        public GenerateConfig Config { get; set; } = new GenerateConfig();
+
         public List<ClassParam> Classes = new List<ClassParam>();
     }
 }

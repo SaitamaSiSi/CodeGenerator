@@ -4,6 +4,9 @@
              RequestedThemeVariant="Default">
 	<!-- "Default" ThemeVariant follows system theme variant. "Dark" or "Light" are other available options. -->
 
+	<!--<Application.Resources>
+		<FontFamily x:Key="STJTBZ">avares://CodeGenerator/Resources/Fonts/STJTBZ.ttf#STJTBZ</FontFamily>
+	</Application.Resources>-->
 	<Application.Styles>
 		<FluentTheme />
 		<StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>

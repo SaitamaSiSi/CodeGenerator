@@ -8,9 +8,8 @@ using Zyh.Common.Entity;
 
 namespace CodeGenerator.Model
 {
-    public class DatabaseConfig
+    public class DatabaseConfig : GenerateConfig
     {
-        public DatabaseType DbType { get; set; }
         public string IP { get; set; } = string.Empty;
         public int Port { get; set; }
         public string UserName { get; set; } = string.Empty;
@@ -20,7 +19,7 @@ namespace CodeGenerator.Model
         {
             if (DbType == DatabaseType.Dm)
             {
-                return $"Server={IP};PORT={Port};USER ID={UserName};PWD={Password}";
+                return $"Server={IP};PORT={Port};USER ID={UserName};PWD={Password};";
             }
             else if (DbType == DatabaseType.Mysql)
             {

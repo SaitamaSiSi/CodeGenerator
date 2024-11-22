@@ -1,18 +1,15 @@
 ﻿//------------------------------------------------------------------------------
 // <author>Zhuo YuHan</author>
 // <email>1719700768@qq.com</email>
-// <date>2024/11/20 14:32:44</date>
+// <date>2024/11/22 14:18:25</date>
 //------------------------------------------------------------------------------
 
-using CodeGenerator.Core;
+using Zyh.Common.Entity;
 
-namespace CodeGenerator.Command
+namespace CodeGenerator.Model
 {
-    public class MysqlCmd : CommandBase, ICommand
+    public class BaseConfig
     {
-        public MysqlCmd()
-        {
-            Command = Zyh.Common.Entity.DatabaseType.Mysql;
-        }
+        public DatabaseType DbType { get; set; }
     }
 }

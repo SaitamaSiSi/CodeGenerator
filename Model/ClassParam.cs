@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using Zyh.Common.Entity;
 
 namespace CodeGenerator.Model
 {
@@ -14,20 +13,9 @@ namespace CodeGenerator.Model
     {
         public string TableName { get; set; } = string.Empty;
 
-        public DatabaseType Database { get; set; }
-
         public string ClassName { get; set; } = string.Empty;
 
         public string ClassCom { get; set; } = string.Empty;
-
-        public string ClassNameSpace { get; set; } = "Zyh.Common.Entity";
-
-        public string ProviderNameSpace { get; set; } = "Zyh.Common.Provider";
-
-        public string ServiceNameSpace { get; set; } = "Zyh.Common.Service";
-
-
-        public List<string> AddNameSpace { get; set; } = new List<string>();
 
         public List<ColumnParam> Parameters = new List<ColumnParam>();
 

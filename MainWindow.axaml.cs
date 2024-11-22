@@ -8,7 +8,6 @@ using System.Data.Common;
 using Zyh.Common.Entity;
 using System.Linq;
 using System.Data;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using CodeGenerator.Generator;
 using CodeGenerator.Core;
@@ -19,7 +18,8 @@ namespace CodeGenerator
 {
     public partial class MainWindow : Window
     {
-        readonly DatabaseConfig config = new();
+        private readonly bool IsProduction = true;
+        DatabaseConfig config = new();
 
         #region 构造和初始化
 
@@ -39,8 +39,8 @@ namespace CodeGenerator
             Closing += MainWindow_Closing;
             Closed += MainWindow_Closed;
 
-            db_type.SelectionChanged += OnDbTypeChanged;
-            db_port.TextChanging += PortChanging;
+
+            btnTest.IsVisible = !IsProduction;
             tv.SelectionChanged += OnSelectionChanged;
 
             DbProviderFactories.RegisterFactory("DmClientFactory", Dm.DmClientFactory.Instance);
@@ -63,48 +63,18 @@ namespace CodeGenerator
         private void InitData()
         {
             // 初始化数据库连接信息
-            db_type.SelectedIndex = 0;
-            db_ip.Text = "192.168.100.198";
-            db_port.Text = "5236";
-            db_id.Text = "SYSDBA";
-            db_pwd.Text = "654#@!qaz";
+            config.DbType = DatabaseType.Dm;
+            config.IP = "192.168.100.198";
+            config.Port = 5236;
+            config.UserName = "SYSDBA";
+            config.Password = "654#@!qaz";
+            Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "DmClientFactory");
+            Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
         }
 
         #endregion
 
         #region 数据库辅助方法
-
-        /// <summary>
-        /// 根据控件设置数据库信息
-        /// </summary>
-        /// <returns></returns>
-        private bool SetDbConn()
-        {
-            if (!RegexHelper.IsValidIPv4(db_ip.Text ?? string.Empty))
-            {
-                ChangeShowMsg("IP地址不符合规范");
-                return false;
-            }
-            config.IP = db_ip.Text ?? string.Empty;
-            config.Port = Convert.ToInt32(db_port.Text);
-            config.UserName = db_id.Text ?? string.Empty;
-            config.Password = db_pwd.Text ?? string.Empty;
-            CodeDomHelper.DbType = config.DbType;
-            tv.ItemsSource = new List<string>();
-            dg.ItemsSource = new List<string>();
-            if (config.DbType == DatabaseType.Dm)
-            {
-                Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "DmClientFactory");
-                Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
-            }
-            else if (config.DbType == DatabaseType.Mysql)
-            {
-                Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "MySqlConnector");
-                Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
-            }
-
-            return true;
-        }
 
         /// <summary>
         /// 查询某模式下的所有表信息
@@ -122,11 +92,11 @@ namespace CodeGenerator
                 foreach (DataRow row in dt.Rows)
                 {
                     result.Add(
-                        row["TABLE_NAME"].ToString().ToUpper(),
-                        row["COMMENTS"].ToString()
+                        (row["TABLE_NAME"].ToString() ?? string.Empty).ToUpper(),
+                        row["COMMENTS"].ToString() ?? string.Empty
                         );
                 }
-                return result;
+                return new Dictionary<string, string>(result.Where(m => !string.IsNullOrEmpty(m.Key)));
             }
         }
 
@@ -152,6 +122,7 @@ namespace CodeGenerator
                     {
                         node.IsPrimaryKey = true;
                     }
+                    node.Name = node.Name.ToUpper();
                 }
 
                 return result;
@@ -173,7 +144,7 @@ namespace CodeGenerator
                 {
                     treeNodes.Add(new TreeNode()
                     {
-                        Title = schemaName
+                        Title = schemaName.ToUpper()
                     });
                 }
             }
@@ -199,62 +170,53 @@ namespace CodeGenerator
             });
         }
 
-        #endregion
-
-        #region 控件触发事件
+        /// <summary>
+        /// 弹出配置窗口
+        /// </summary>
+        private void ShowConfigWindow()
+        {
+            ConfigWindow signInWindow = new(config)
+            {
+                ConfigCallback = ConfigCallback
+            };
+            signInWindow.ShowDialog(this);
+        }
 
         /// <summary>
-        /// 数据库类型改变
+        /// 窗口返回事件
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void OnDbTypeChanged(object sender, SelectionChangedEventArgs e)
+        /// <param name="result"></param>
+        private void ConfigCallback(DatabaseConfig result)
         {
-            if (e.AddedItems.Count > 0)
+            // 处理返回的数据
+            if (result != null)
             {
-                switch (db_type.SelectedIndex)
+                config = result;
+                tv.ItemsSource = new List<string>();
+                dg.ItemsSource = new List<string>();
+                if (config.DbType == DatabaseType.Dm)
                 {
-                    case 0:
-                        config.DbType = DatabaseType.Dm;
-                        break;
-                    case 1:
-                        config.DbType = DatabaseType.Mysql;
-                        break;
+                    Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "DmClientFactory");
+                    Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
+                }
+                else if (config.DbType == DatabaseType.Mysql)
+                {
+                    Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "MySqlConnector");
+                    Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
                 }
             }
         }
 
-        /// <summary>
-        /// 端口改变
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void PortChanging(object? sender, TextChangingEventArgs e)
-        {
-            // 使用正则表达式确保只输入数字
-            string txt = db_port.Text ?? string.Empty;
-            if (!RegexHelper.IsValidNumber(txt))
-            {
-                db_port.Text = Regex.Replace(txt, "[^0-9]", "");
-            }
+        #endregion
 
-            txt = db_port.Text ?? string.Empty;
-            if (string.IsNullOrEmpty(txt))
-            {
-                db_port.Text = "0";
-            }
-            if (!string.IsNullOrEmpty(txt) && int.Parse(txt) > 65535)
-            {
-                db_port.Text = "65535";
-            }
-        }
+        #region 控件触发事件
 
         /// <summary>
         /// 树状表格选中改变
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
             var ent = tv.SelectedItem as TreeNode;
             if (ent != null)
@@ -291,26 +253,39 @@ namespace CodeGenerator
         }
 
         /// <summary>
+        /// 配置按钮事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnConfigClick(object? sender, RoutedEventArgs e)
+        {
+            ShowConfigWindow();
+        }
+
+        /// <summary>
         /// 连接按钮事件
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnConnectClick(object sender, RoutedEventArgs e)
+        private async void BtnConnectClick(object? sender, RoutedEventArgs e)
         {
-            if (!SetDbConn())
+            var result = await ConfirmWindow.Show(this, $"确定连接数据库{config.IP}:{config.Port}", "提示");
+            if (result)
             {
-                return;
+                try
+                {
+                    DataContextScope.ClearCurrent();
+                    tv.ItemsSource = GetSchameNames();
+                    ChangeShowMsg("连接成功");
+                }
+                catch (Exception ex)
+                {
+                    ChangeShowMsg($"发生异常:{ex.Message}");
+                }
             }
-
-            try
+            else
             {
-                DataContextScope.ClearCurrent();
-                tv.ItemsSource = GetSchameNames();
-                ChangeShowMsg("连接成功");
-            }
-            catch (Exception ex)
-            {
-                ChangeShowMsg($"发生异常:{ex.Message}");
+                _ = TipWindow.Show(this, "取消连接", "提示");
             }
         }
 
@@ -319,7 +294,7 @@ namespace CodeGenerator
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnStartClick(object sender, RoutedEventArgs e)
+        private void BtnStartClick(object? sender, RoutedEventArgs e)
         {
             var treeNodes = tv.ItemsSource?.Cast<TreeNode>().ToList();
             if (treeNodes != null)
@@ -333,7 +308,7 @@ namespace CodeGenerator
                         {
                             ClassParam param = new ClassParam();
                             param.TableName = table.Title;
-                            param.ClassName = CodeDomHelper.ConvertToCamelCase(param.TableName);
+                            param.ClassName = CodeDomHelper.ConvertToCamelCase(param.TableName, false, config.RemovePre);
                             param.ClassCom = table.Comments;
                             if (table.Columns.Count == 0)
                             {
@@ -363,12 +338,12 @@ namespace CodeGenerator
                         List<ClassParam> classes = tuple.Item2;
                         if (currentType == DatabaseType.Dm)
                         {
-                            var res = CommandBus.Execute<DmCmd, CmdResCode>(new DmCmd() { Command = DatabaseType.Dm, Classes = classes });
+                            var res = CommandBus.Execute<DmCmd, CmdResCode>(new DmCmd() { Config = config, Classes = classes });
                             ChangeShowMsg(res.Msg, action);
                         }
                         else if (currentType == DatabaseType.Mysql)
                         {
-                            var res = CommandBus.Execute<MysqlCmd, CmdResCode>(new MysqlCmd() { Command = DatabaseType.Mysql, Classes = classes });
+                            var res = CommandBus.Execute<MysqlCmd, CmdResCode>(new MysqlCmd() { Config = config, Classes = classes });
                             ChangeShowMsg(res.Msg, action);
                         }
                         else
@@ -386,6 +361,39 @@ namespace CodeGenerator
             {
                 ChangeShowMsg("没有模式");
             }
+        }
+
+        /// <summary>
+        /// 自定义测试内容
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnTestClick(object? sender, RoutedEventArgs e)
+        {
+            // 达梦测试
+            //Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "DmClientFactory");
+            //Environment.SetEnvironmentVariable("DefaultConnectionString", "Server=192.168.100.198;PORT=5236;USER ID=SYSDBA;PWD=654#@!qaz;SCHEMA=TEST_DB;");
+
+            // Mysql测试
+            //Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "MySqlConnector");
+            //Environment.SetEnvironmentVariable("DefaultConnectionString", "Server=192.168.100.198;port=3306;user=root;password=654#@!qaz;Database=test_db;");
+
+            //Zyh.Common.Service.TSysDictDataSqlService service = new Zyh.Common.Service.TSysDictDataSqlService();
+
+            //var ent = new TSysDictDataEntity()
+            //{
+            //    CATG_ID = "CameraStatus",
+            //    DICT_KEY = "TestKey",
+            //    DICT_VALUE = "TestValue",
+            //};
+            //service.Add(ent);
+            //var lsit = service.FindAll(string.Empty);
+            //var pager = service.GetPager(1, 3, string.Empty);
+
+            //var ent = service.Get(274);
+            //ent.DICT_VALUE = "TestValue2";
+            //service.Update(ent);
+            //service.Delete(ent.ID);
         }
 
         /// <summary>

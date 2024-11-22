@@ -6,6 +6,7 @@
 
 using CodeGenerator.Command;
 using CodeGenerator.Core;
+using CodeGenerator.Generator;
 
 namespace CodeGenerator.Hand
 {
@@ -13,7 +14,12 @@ namespace CodeGenerator.Hand
     {
         public ResultMessage<CmdResCode> Handle(MysqlCmd command)
         {
-            return ResultMessage<CmdResCode>.Successful("Mysql暂未实现", command.Code);
+            foreach (var item in command.Classes)
+            {
+                ClassGenerator.CreateClasses(item, command.Config);
+            }
+
+            return ResultMessage<CmdResCode>.Successful("生成完毕", command.Code);
         }
     }
 }

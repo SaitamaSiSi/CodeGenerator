@@ -10,5 +10,9 @@ namespace CodeGenerator.Command
 {
     public class DmCmd : CommandBase, ICommand
     {
+        public DmCmd()
+        {
+            Command = Zyh.Common.Entity.DatabaseType.Dm;
+        }
     }
 }

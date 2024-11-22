@@ -8,10 +8,11 @@ using CodeGenerator.Model;
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using Zyh.Common.Entity;
 
-namespace CodeGenerator.Generator.Dm
+namespace CodeGenerator.Generator
 {
-    public class DmEntityHelper : CodeDomHelper
+    public class EntityHelper : CodeDomHelper
     {
         public const string Entity = "Entity";
 
@@ -30,18 +31,17 @@ namespace CodeGenerator.Generator.Dm
             //设置返回值类型：int/不设置则为void
             method.ReturnType = new CodeTypeReference(className);
             //设置返回值
-            string retStr = GetSpace(3) + "if (thatObj == null)" + Environment.NewLine +
-                GetSpace(3) + "{" + Environment.NewLine +
-                GetSpace(4) + "throw new ArgumentNullException(\"thatObj\");" + Environment.NewLine +
-                GetSpace(3) + "}";
+            string retStr = GetSpace(3) + "if (thatObj == null)"
+                + GetNewLine(3) + "{"
+                + GetNewLine(4) + "throw new ArgumentNullException(\"thatObj\");"
+                + GetNewLine(3) + "}";
 
             foreach (var col in columns)
             {
                 string fieldName = ConvertToCamelCase(col);
-                retStr = retStr + Environment.NewLine + GetSpace(3);
-                retStr = retStr + (isFrom ? $"this.{fieldName} = thatObj.{fieldName};" : $"thatObj.{fieldName} = this.{fieldName};");
+                retStr += GetNewLine(3) + (isFrom ? $"this.{fieldName} = thatObj.{fieldName};" : $"thatObj.{fieldName} = this.{fieldName};");
             }
-            retStr = retStr + Environment.NewLine + GetSpace(3) + "return " + (isFrom ? "this;" : "thatObj;");
+            retStr = retStr + GetNewLine(3) + "return " + (isFrom ? "this;" : "thatObj;");
             method.Statements.Add(new CodeSnippetStatement(retStr));
 
             return method;
@@ -59,8 +59,8 @@ namespace CodeGenerator.Generator.Dm
             method.ReturnType = new CodeTypeReference(className);
             //设置返回值
             method.Statements.Add(new CodeSnippetStatement(
-                GetSpace(3) + $"var thatObj = new {className}();" + Environment.NewLine +
-                GetSpace(3) + "return this.CloneTo(thatObj);"
+                GetSpace(3) + $"var thatObj = new {className}();"
+                + GetNewLine(3) + "return this.CloneTo(thatObj);"
                 ));
             return method;
         }
@@ -87,7 +87,7 @@ namespace CodeGenerator.Generator.Dm
 
         #region 公共Entity方法
 
-        public static CodeTypeDeclaration CreateNormalEntityClass(CodeCompileUnit unit, ClassParam param)
+        public static CodeTypeDeclaration CreateNormalEntityClass(CodeCompileUnit unit, ClassParam param, string classNameSpace)
         {
             unit.Namespaces.Add(new CodeNamespace());
             //导入必要的命名空间引用
@@ -97,7 +97,7 @@ namespace CodeGenerator.Generator.Dm
             unit.Namespaces[0].Imports.Add(new CodeNamespaceImport("System.Linq"));
             unit.Namespaces[0].Imports.Add(new CodeNamespaceImport("System.Text"));
 
-            CodeNamespace myNamespace = new CodeNamespace(param.ClassNameSpace);
+            CodeNamespace myNamespace = new CodeNamespace(classNameSpace);
 
             //Code:代码体
             CodeTypeDeclaration myClass = new CodeTypeDeclaration(param.ClassName + Entity);
@@ -115,9 +115,9 @@ namespace CodeGenerator.Generator.Dm
             return myClass;
         }
 
-        public static CodeTypeDeclaration CreateGenerateEntityClass(CodeCompileUnit unit, ClassParam param)
+        public static CodeTypeDeclaration CreateGenerateEntityClass(CodeCompileUnit unit, ClassParam param, string classNameSpace)
         {
-            CodeNamespace myNamespace = new CodeNamespace(param.ClassNameSpace);
+            CodeNamespace myNamespace = new CodeNamespace(classNameSpace);
 
             //导入必要的命名空间引用
             myNamespace.Imports.Add(new CodeNamespaceImport("System"));
@@ -170,12 +170,20 @@ namespace CodeGenerator.Generator.Dm
 
         }
 
-        public static void CreateFields(CodeTypeDeclaration myClass, List<ColumnParam> columns)
+        public static void CreateFields(CodeTypeDeclaration myClass, List<ColumnParam> columns, DatabaseType type)
         {
             foreach (var item in columns)
             {
                 string fieldName = ConvertToCamelCase(item.Name);
-                string cSharpType = DmToCSharpByType(item.Type) + (string.Equals(item.IsNullable, "Y") ? "?" : "");
+                string cSharpType = string.Empty;
+                if (type == DatabaseType.Dm)
+                {
+                    cSharpType = DmToCSharpByType(item.Type) + (string.Equals(item.IsNullable, "Y", StringComparison.OrdinalIgnoreCase) ? "?" : "");
+                }
+                else if (type == DatabaseType.Mysql)
+                {
+                    cSharpType = MysqlToCSharpByType(item.Type) + (string.Equals(item.IsNullable, "YES", StringComparison.OrdinalIgnoreCase) ? "?" : "");
+                }
                 CodeMemberField field = new CodeMemberField(cSharpType, fieldName);
                 //设置访问类型
                 field.Attributes = MemberAttributes.Private;

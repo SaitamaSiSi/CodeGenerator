@@ -6,7 +6,8 @@
 
 using CodeGenerator.Command;
 using CodeGenerator.Core;
-using CodeGenerator.Generator.Dm;
+using CodeGenerator.Generator;
+using CodeGenerator.Model;
 
 namespace CodeGenerator.Hand
 {
@@ -16,7 +17,7 @@ namespace CodeGenerator.Hand
         {
             foreach (var item in command.Classes)
             {
-                DmGenerator.CreateEntities(item);
+                ClassGenerator.CreateClasses(item, command.Config);
             }
 
             return ResultMessage<CmdResCode>.Successful("生成完毕", command.Code);

@@ -1,0 +1,134 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="CodeGenerator.ConfigWindow"
+		Width="400" Height="300"
+		mc:Ignorable="d"
+		WindowStartupLocation="CenterOwner"
+        Title="配置数据库"
+		ShowInTaskbar="False"
+		CanResize="False">
+	<Window.Styles>
+		<Style Selector="Button:pointerover">
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="Button:focus">
+			<Setter Property="Background" Value="Gray"/>
+		</Style>
+	</Window.Styles>
+	<Grid Margin="5 5 5 5">
+		<Border Background="LightGray">
+			<StackPanel Margin="0,10,0,0">
+				<StackPanel Orientation="Horizontal" Margin="0 0 0 0">
+					<Label
+					Content="类型:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<ComboBox
+						x:Name="db_type"
+						VerticalAlignment="Center"
+						Width="125"
+						Margin="0">
+						<ComboBoxItem Content="达梦" />
+						<ComboBoxItem Content="Mysql" />
+					</ComboBox>
+					<Label
+					Content="实体:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="entity_ns"
+							Margin="0"
+							Width="125"
+							Height="20" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+					<Label
+					Content="操作:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="provider_ns"
+							Margin="0"
+							Width="125"
+							Height="20" />
+					<Label
+					Content="服务:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="service_ns"
+							Margin="0"
+							Width="125"
+							Height="20"/>
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+					<Label
+					Content="IP:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="db_ip"
+							Margin="0"
+							Width="125"
+							Height="20" />
+					<Label
+					Content="端口:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="db_port"
+							Margin="0"
+							Width="125"
+							Height="20" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+					<Label
+					Content="账号:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="db_id"
+							Margin="0"
+							Width="125"
+							Height="20" />
+					<Label
+					Content="密码:"
+					Margin="10 0 0 0"
+					Width="45"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="db_pwd"
+							Margin="0"
+							Width="125"
+							Height="20" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Margin="0 10 0 0">
+					<Label
+					Content="移除前缀集:"
+					Margin="10 0 0 0"
+					Width="90"
+					VerticalAlignment="Center" />
+					<TextBox
+							x:Name="del_pre"
+							Margin="0"
+							Width="260"
+							Height="20" />
+				</StackPanel>
+				<StackPanel Orientation="Horizontal" Margin="0,15,0,0">
+					<Button Content="取消" Margin="250,0,0,0" Click="BtnCancelClick" Height="28" VerticalAlignment="Top" />
+					<Button Content="确定" Margin="10,0,0,0" Click="BtnSaveClick" Height="28" VerticalAlignment="Top" />
+				</StackPanel>
+				<TextBlock x:Name="tbx_tip" Margin="0 10 0 0" Foreground="Red" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+			</StackPanel>
+		</Border>
+	</Grid>
+</Window>

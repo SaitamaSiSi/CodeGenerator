@@ -570,7 +570,7 @@ WHERE";
             return method;
         }
 
-        private static CodeMemberMethod GetProviderAdd1(string className, DatabaseType type)
+        private static CodeMemberMethod GetProviderAdd1(string className, DatabaseType type, string primaryAutoIncKey)
         {
             string entityName = className + EntityHelper.Entity;
             //添加方法
@@ -585,10 +585,29 @@ WHERE";
             method.Parameters.Add(new CodeParameterDeclarationExpression(entityName, "ent"));
 
             //设置返回值
+            string addStr = string.Empty;
+            if (!string.IsNullOrEmpty(primaryAutoIncKey))
+            {
+                switch (type)
+                {
+                    case DatabaseType.Dm:
+                        {
+                            addStr = GetNewLine(3) + $"ent.{primaryAutoIncKey} = DataContextObject.ExecuteScalar<Int32>(\"Select @@IDENTITY;\");";
+                            break;
+                        }
+                    case DatabaseType.Mysql:
+                        {
+                            addStr = GetNewLine(3) + $"ent.{primaryAutoIncKey} = (Int32)cmd.LastInsertedId;";
+                            break;
+                        }
+                }
+
+            }
             string retStr = GetSpace(3) + $"using var cmd = DatabaseObject.GetSqlStringCommand(Insert_{className}_Sql) as {CommandStr(type)};"
                 + GetNewLine(3) + "var nonKeyParams = BuildParametersForNonKey(ent);"
                 + GetNewLine(3) + "cmd.Parameters.AddRange(nonKeyParams);"
                 + GetNewLine(3) + "var execResult = DataContextObject.ExecuteNonQuery(cmd);"
+                + addStr
                 + GetNewLine(3) + "return execResult;";
             method.Statements.Add(new CodeSnippetStatement(retStr));
 
@@ -835,7 +854,7 @@ WHERE";
             return myClass;
         }
 
-        public static void CreateProviderMethod(CodeTypeDeclaration myClass, string className, string tableName, List<ColumnParam> columns, List<string> keyColumnNames, DatabaseType type)
+        public static void CreateProviderMethod(CodeTypeDeclaration myClass, string className, string tableName, List<ColumnParam> columns, List<string> keyColumnNames, DatabaseType type, string primaryAutoIncKey)
         {
             string entityName = className + EntityHelper.Entity;
 
@@ -845,7 +864,7 @@ WHERE";
             CodeMemberMethod get = GetProviderGet(className, keyColumns, type);
             CodeMemberMethod findAll = GetProviderFindAll(className);
             CodeMemberMethod getPager = GetProviderGetPager(className);
-            CodeMemberMethod add1 = GetProviderAdd1(className, type);
+            CodeMemberMethod add1 = GetProviderAdd1(className, type, primaryAutoIncKey);
             CodeMemberMethod add2 = GetProviderAdd2(entityName, tableName, columns, type);
             CodeMemberMethod update = GetProviderUpdate(className, type);
             CodeMemberMethod delete = GetProviderDelete(className, keyColumns, type);

@@ -40,5 +40,10 @@ namespace CodeGenerator.Model
         {
             return Parameters.Where(m => m.IsPrimaryKey).Select(m => m.Name).ToList();
         }
+
+        public string GetPrimaryAutoIncKey()
+        {
+            return Parameters.Where(m => m.IsPrimaryKey && m.IsAutoIncrement).Select(m => m.Name).FirstOrDefault() ?? string.Empty;
+        }
     }
 }

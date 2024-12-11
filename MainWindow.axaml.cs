@@ -115,14 +115,17 @@ namespace CodeGenerator
 
                 sql = config.GetSelPrimaryKeySql(schemaName, tableName);
                 string primaryKeyStr = scope.DataContext.ExecuteScalar<string>(sql);
-                List<string> primaryKeys = primaryKeyStr.Split(',').Distinct().ToList();
-                foreach (var node in result)
+                if (!string.IsNullOrEmpty(primaryKeyStr))
                 {
-                    if (primaryKeys.Contains(node.Name))
+                    List<string> primaryKeys = primaryKeyStr.Split(',').Distinct().ToList();
+                    foreach (var node in result)
                     {
-                        node.IsPrimaryKey = true;
+                        if (primaryKeys.Contains(node.Name))
+                        {
+                            node.IsPrimaryKey = true;
+                        }
+                        node.Name = node.Name.ToUpper();
                     }
-                    node.Name = node.Name.ToUpper();
                 }
 
                 return result;

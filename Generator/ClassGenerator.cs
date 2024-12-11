@@ -52,7 +52,7 @@ namespace CodeGenerator.Generator
 
             CodeCompileUnit generateUnit = new CodeCompileUnit();
             CodeTypeDeclaration generateClass = ProviderHelper.CreateGenerateProviderClass(generateUnit, param, config.DbType, config.ClassNameSpace, config.ProviderNameSpace);
-            ProviderHelper.CreateProviderMethod(generateClass, param.ClassName, param.TableName, param.Parameters, param.GetPrimaryKeys(), config.DbType);
+            ProviderHelper.CreateProviderMethod(generateClass, param.ClassName, param.TableName, param.Parameters, param.GetPrimaryKeys(), config.DbType, param.GetPrimaryAutoIncKey());
             CodeDomHelper.SaveClass(generateUnit, param.ClassName, ProviderHelper.SqlProvierBase, prePath, lastPath);
 
             CodeCompileUnit normalUnit = new CodeCompileUnit();

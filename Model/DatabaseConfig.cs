@@ -19,11 +19,11 @@ namespace CodeGenerator.Model
         {
             if (DbType == DatabaseType.Dm)
             {
-                return $"Server={IP};PORT={Port};USER ID={UserName};PWD={Password};";
+                return $"Server={IP};PORT={Port};USER ID={UserName};PWD={Password};"; // SCHEMA=TEST_DB;
             }
             else if (DbType == DatabaseType.Mysql)
             {
-                return $"Server={IP};port={Port};user={UserName};password={Password};";
+                return $"Server={IP};port={Port};user={UserName};password={Password};"; // database=test_db;
             }
             else
             {

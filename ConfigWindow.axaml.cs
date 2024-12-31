@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using CodeGenerator.Core;
 using CodeGenerator.Model;
@@ -22,6 +23,8 @@ public partial class ConfigWindow : Window
     public ConfigWindow(DatabaseConfig config)
     {
         InitializeComponent();
+        title_bar.OnPointerMouseHander += TitleBarOnPointerMouseHander;
+        title_bar.Title = " ˝æ›ø‚≈‰÷√";
 
         Config = config;
         if (Config.DbType == DatabaseType.Dm)
@@ -44,6 +47,11 @@ public partial class ConfigWindow : Window
 
         db_type.SelectionChanged += OnDbTypeChanged;
         db_port.TextChanging += PortChanging;
+    }
+
+    private void TitleBarOnPointerMouseHander(object? sender, PointerPressedEventArgs e)
+    {
+        BeginMoveDrag(e);
     }
 
     /// <summary>

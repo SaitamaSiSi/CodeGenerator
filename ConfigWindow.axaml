@@ -3,11 +3,14 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         x:Class="CodeGenerator.ConfigWindow"
+		xmlns:local="clr-namespace:CodeGenerator"
 		Width="400" Height="300"
 		mc:Ignorable="d"
 		WindowStartupLocation="CenterOwner"
-        Title="配置数据库"
 		ShowInTaskbar="False"
+		ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
 		CanResize="False">
 	<Window.Styles>
 		<Style Selector="Button:pointerover">
@@ -18,7 +21,14 @@
 		</Style>
 	</Window.Styles>
 	<Grid Margin="5 5 5 5">
-		<Border Background="LightGray">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1*"/>
+			<RowDefinition Height="10*"/>
+		</Grid.RowDefinitions>
+		<Border Grid.Row="0">
+			<local:WindowsTitleBar x:Name="title_bar" />
+		</Border>
+		<Border Grid.Row="1" Background="LightGray">
 			<StackPanel Margin="0,10,0,0">
 				<StackPanel Orientation="Horizontal" Margin="0 0 0 0">
 					<Label

@@ -23,6 +23,7 @@
 		<PackageReference Include="Dapper" Version="2.1.35" />
 		<PackageReference Include="DM.DmProvider" Version="8.3.1.28188" />
 		<PackageReference Include="MySqlConnector" Version="2.4.0" />
+		<PackageReference Include="Npgsql" Version="9.0.3" />
 		<PackageReference Include="System.CodeDom" Version="9.0.0" />
 		<PackageReference Include="Yitter.IdGenerator" Version="1.0.14" />
 	</ItemGroup>

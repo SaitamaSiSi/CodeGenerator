@@ -52,6 +52,10 @@ namespace Zyh.Common.Entity
             {
                 _databaseType = DatabaseType.Mysql;
             }
+            else if (string.Equals(providerName, "Npgsql", StringComparison.OrdinalIgnoreCase))
+            {
+                _databaseType = DatabaseType.OpenGauss;
+            }
             _dbProviderFactory = DbProviderFactories.GetFactory(providerName);
             _database = new Database(_connectionString, _dbProviderFactory);
             _dbConnection = _dbProviderFactory.CreateConnection();

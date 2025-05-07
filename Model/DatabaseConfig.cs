@@ -15,7 +15,12 @@ namespace CodeGenerator.Model
         public string UserName { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
 
-        public string GetConnectStr()
+        /// <summary>
+        /// 该参数目前仅针对Opengauss
+        /// </summary>
+        /// <param name="database"></param>
+        /// <returns></returns>
+        public string GetConnectStr(string database = "postgres")
         {
             if (DbType == DatabaseType.Dm)
             {
@@ -24,6 +29,11 @@ namespace CodeGenerator.Model
             else if (DbType == DatabaseType.Mysql)
             {
                 return $"Server={IP};port={Port};user={UserName};password={Password};"; // database=test_db;
+            }
+            else if (DbType == DatabaseType.OpenGauss)
+            {
+                // PostgreSQL类型数据库必须指定已存在数据库连接，此处连接默认数据库
+                return $"Host={IP};Port={Port};Database={database.ToLower()};Username ={UserName};PASSWORD={Password};No Reset On Close=true"; // database=test_db;
             }
             else
             {
@@ -41,6 +51,10 @@ namespace CodeGenerator.Model
             {
                 return "SHOW DATABASES;";
                 // return "SELECT SCHEMA_NAME FROM INFORMATION_SCHEMA.SCHEMATA;";
+            }
+            else if (DbType == DatabaseType.OpenGauss)
+            {
+                return "SELECT datname AS database_name \r\nFROM pg_database \r\nWHERE datname NOT LIKE 'template%' \r\n  AND datname != 'postgres';";
             }
             else
             {
@@ -71,6 +85,18 @@ TABLE_NAME,
 TABLE_COMMENT AS COMMENTS
 FROM INFORMATION_SCHEMA.TABLES 
 WHERE TABLE_SCHEMA = '{schemaName}';
+";
+            }
+            else if (DbType == DatabaseType.OpenGauss)
+            {
+                return $@"
+SELECT 
+    tablename AS TABLE_NAME, 
+    COALESCE(description, '') AS COMMENTS 
+FROM pg_tables 
+LEFT JOIN pg_description 
+ON pg_tables.tablename::regclass = pg_description.objoid 
+WHERE schemaname = 'public';
 ";
             }
             else
@@ -122,6 +148,47 @@ FROM INFORMATION_SCHEMA.COLUMNS
 WHERE TABLE_SCHEMA = '{schemaName}' AND TABLE_NAME = '{tableName}';
 ";
             }
+            else if (DbType == DatabaseType.OpenGauss)
+            {
+                return @$"
+SELECT
+        a.attname AS Name,
+        format_type(a.atttypid, a.atttypmod) AS Type,
+        COALESCE(d.description, '') AS Comments,
+        CASE 
+            WHEN format_type(a.atttypid, a.atttypmod) LIKE '%(%)%' THEN
+                split_part(split_part(format_type(a.atttypid, a.atttypmod), '(', 2), ')', 1)::INT
+            ELSE NULL 
+        END AS Length,
+        CASE 
+            WHEN a.attnotnull THEN 'NO' 
+            ELSE 'YES' 
+        END AS IsNullable,
+        CASE 
+            WHEN pg_get_expr(ad.adbin, ad.adrelid) LIKE 'nextval%' THEN TRUE 
+            ELSE FALSE 
+        END AS IsAutoIncrement
+      FROM
+        pg_attribute a
+      LEFT JOIN
+        pg_description d 
+        ON a.attrelid = d.objoid AND a.attnum = d.objsubid
+      LEFT JOIN
+        pg_attrdef ad 
+        ON a.attrelid = ad.adrelid AND a.attnum = ad.adnum
+      INNER JOIN
+        pg_class c 
+        ON a.attrelid = c.oid
+      INNER JOIN
+        pg_namespace n 
+        ON c.relnamespace = n.oid
+      WHERE
+        n.nspname = 'public'
+        AND c.relname = '{tableName.ToLower()}'
+        AND a.attnum > 0
+        AND NOT a.attisdropped;
+";
+            }
             else
             {
                 return "";
@@ -158,6 +225,20 @@ SELECT GROUP_CONCAT(COLUMN_NAME ORDER BY ORDINAL_POSITION) AS PK_COLUMNS
 FROM INFORMATION_SCHEMA.COLUMNS
 WHERE 
 TABLE_SCHEMA = '{schemaName}' AND TABLE_NAME = '{tableName}' AND COLUMN_KEY = 'PRI';
+";
+            }
+            else if (DbType == DatabaseType.OpenGauss)
+            {
+                return @$"
+SELECT string_agg(a.attname, ', ' ORDER BY a.attnum) AS PK_COLUMNS
+FROM 
+    pg_constraint c
+    JOIN pg_namespace n ON n.oid = c.connamespace
+    JOIN pg_attribute a ON a.attrelid = c.conrelid AND a.attnum = ANY(c.conkey)
+WHERE 
+    c.contype = 'p' AND 
+    n.nspname = 'public' AND 
+    c.conrelid::regclass = '{tableName.ToLower()}'::regclass;
 ";
             }
             else

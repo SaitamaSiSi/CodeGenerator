@@ -45,6 +45,7 @@ namespace CodeGenerator
 
             DbProviderFactories.RegisterFactory("DmClientFactory", Dm.DmClientFactory.Instance);
             DbProviderFactories.RegisterFactory("MySqlConnector", MySqlConnector.MySqlConnectorFactory.Instance);
+            DbProviderFactories.RegisterFactory("Npgsql", Npgsql.NpgsqlFactory.Instance);
 
             // 创建 IdGeneratorOptions 对象，可在构造函数中输入 WorkerId：
             var options = new IdGeneratorOptions();
@@ -63,12 +64,23 @@ namespace CodeGenerator
         private void InitData()
         {
             // 初始化数据库连接信息
+
+            /* 达梦
             config.DbType = DatabaseType.Dm;
             config.IP = "192.168.100.198";
             config.Port = 5236;
             config.UserName = "SYSDBA";
             config.Password = "654#@!qaz";
             Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "DmClientFactory");
+            Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
+            */
+
+            config.DbType = DatabaseType.OpenGauss;
+            config.IP = "192.168.100.168";
+            config.Port = 5432;
+            config.UserName = "test";
+            config.Password = "test@123";
+            Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "Npgsql");
             Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
         }
 
@@ -83,6 +95,11 @@ namespace CodeGenerator
         /// <returns></returns>
         private Dictionary<string, string> GetTableNames(string schemaName)
         {
+            if (config.DbType == DatabaseType.OpenGauss)
+            {
+                DataContextScope.ClearCurrent();
+                Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr(schemaName));
+            }
             using (var scope = DataContextScope.GetCurrent().Begin())
             {
                 string sql = config.GetSelTableSql(schemaName);
@@ -91,10 +108,11 @@ namespace CodeGenerator
                 Dictionary<string, string> result = new Dictionary<string, string>();
                 foreach (DataRow row in dt.Rows)
                 {
-                    result.Add(
-                        (row["TABLE_NAME"].ToString() ?? string.Empty).ToUpper(),
-                        row["COMMENTS"].ToString() ?? string.Empty
-                        );
+                    string tableName = (row["TABLE_NAME"].ToString() ?? string.Empty).ToUpper();
+                    if (!result.ContainsKey(tableName))
+                    {
+                        result.Add(tableName, row["COMMENTS"].ToString() ?? string.Empty);
+                    }
                 }
                 return new Dictionary<string, string>(result.Where(m => !string.IsNullOrEmpty(m.Key)));
             }
@@ -108,6 +126,11 @@ namespace CodeGenerator
         /// <returns></returns>
         private List<ColumnParam> GetTableColumns(string schemaName, string tableName)
         {
+            if (config.DbType == DatabaseType.OpenGauss)
+            {
+                DataContextScope.ClearCurrent();
+                Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr(schemaName));
+            }
             using (var scope = DataContextScope.GetCurrent().Begin())
             {
                 string sql = config.GetSelColumnSql(schemaName, tableName);
@@ -207,6 +230,11 @@ namespace CodeGenerator
                     Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "MySqlConnector");
                     Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
                 }
+                else if (config.DbType == DatabaseType.OpenGauss)
+                {
+                    Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "Npgsql");
+                    Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
+                }
             }
         }
 
@@ -238,7 +266,6 @@ namespace CodeGenerator
                             Comments = info.Value
                         });
                     }
-                    ent.SubNodes.Clear();
                     ent.SubNodes = tableNodes;
                     //tv.ItemContainerGenerator.ItemContainerPrepared(tv, ent);
                     if (tableNodes.Count > 0 && tv.SelectedItem is TreeViewItem selItem)
@@ -348,6 +375,10 @@ namespace CodeGenerator
                         {
                             var res = CommandBus.Execute<MysqlCmd, CmdResCode>(new MysqlCmd() { Config = config, Classes = classes });
                             ChangeShowMsg(res.Msg, action);
+                        }
+                        else if (currentType == DatabaseType.OpenGauss)
+                        {
+                            ChangeShowMsg("OpenGauss数据库暂未完成", action);
                         }
                         else
                         {

@@ -43,6 +43,7 @@
 						Margin="0">
 						<ComboBoxItem Content="达梦" />
 						<ComboBoxItem Content="Mysql" />
+						<ComboBoxItem Content="OpenGauss" />
 					</ComboBox>
 					<Label
 					Content="实体:"

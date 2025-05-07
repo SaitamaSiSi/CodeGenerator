@@ -64,7 +64,7 @@
 			<Grid ColumnDefinitions="1*,3*">
 				<Border Grid.Column="0" Background="WhiteSmoke">
 					<TreeView
-						Name="tv"
+						x:Name="tv"
 						x:DataType="vm:TreeNode"
 						FontSize="12">
 						<TreeView.ItemTemplate>

@@ -35,6 +35,10 @@ public partial class ConfigWindow : Window
         {
             db_type.SelectedIndex = 1;
         }
+        else if (Config.DbType == DatabaseType.OpenGauss)
+        {
+            db_type.SelectedIndex = 2;
+        }
         db_ip.Text = Config.IP;
         db_port.Text = Config.Port.ToString();
         db_id.Text = Config.UserName;
@@ -70,6 +74,9 @@ public partial class ConfigWindow : Window
                     break;
                 case 1:
                     Config.DbType = DatabaseType.Mysql;
+                    break;
+                case 2:
+                    Config.DbType = DatabaseType.OpenGauss;
                     break;
             }
         }

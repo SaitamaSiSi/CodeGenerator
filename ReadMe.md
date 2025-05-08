@@ -12,6 +12,8 @@ Base文件夹中的文件需要添加到项目文件中引用使用，通过Dapp
 
 ## 数据库
 
+以下描述中的字段并未通测，具体可调整CodeDomHelper.cs中的类型转换方法
+
 ### 1、达梦
 
 需要依赖DM.DmProvider包进行数据库通信。
@@ -80,3 +82,20 @@ Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "MySq
 
 Environment.SetEnvironmentVariable("DefaultConnectionString", connStr);
 
+### 3、Opengauss
+
+需要依赖Npgsql包进行数据库通信。
+
+支持字段类型，如得到的字段类型为 达梦、Mysql 中类型，则能转换
+
+包含TIMESTAMP：DateTime
+
+包含CHARACTER VARYING：String
+
+注册以下数据库信息：
+
+DbProviderFactories.RegisterFactory("Npgsql", Npgsql.NpgsqlFactory.Instance);
+
+Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "Npgsql");
+
+Environment.SetEnvironmentVariable("DefaultConnectionString", connStr);

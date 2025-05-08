@@ -18,7 +18,7 @@ namespace CodeGenerator
 {
     public partial class MainWindow : Window
     {
-        private readonly bool IsProduction = true;
+        private readonly bool IsProduction = false;
         DatabaseConfig config = new();
 
         #region 构造和初始化
@@ -378,7 +378,8 @@ namespace CodeGenerator
                         }
                         else if (currentType == DatabaseType.OpenGauss)
                         {
-                            ChangeShowMsg("OpenGauss数据库暂未完成", action);
+                            var res = CommandBus.Execute<OpengaussCmd, CmdResCode>(new OpengaussCmd() { Config = config, Classes = classes });
+                            ChangeShowMsg(res.Msg, action);
                         }
                         else
                         {
@@ -412,20 +413,28 @@ namespace CodeGenerator
             //Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "MySqlConnector");
             //Environment.SetEnvironmentVariable("DefaultConnectionString", "Server=192.168.100.198;port=3306;user=root;password=654#@!qaz;Database=test_db;");
 
-            //Zyh.Common.Service.TSysDictDataSqlService service = new Zyh.Common.Service.TSysDictDataSqlService();
+            // Opengauss测试
+            //Environment.SetEnvironmentVariable("DefaultConnectionString.ProviderName", "Npgsql");
+            //Environment.SetEnvironmentVariable("DefaultConnectionString", "Host=192.168.100.168;Port=5432;Database=test_db;Username =test;PASSWORD=test@123;No Reset On Close=true;");
 
-            //var ent = new TSysDictDataEntity()
+
+            //Zyh.Common.Service.TLedEquipSqlService service = new Zyh.Common.Service.TLedEquipSqlService();
+
+            //var ent = new TLedEquipEntity()
             //{
-            //    CATG_ID = "CameraStatus",
-            //    DICT_KEY = "TestKey",
-            //    DICT_VALUE = "TestValue",
+            //    ID = "2",
+            //    NAME = "测试实体2",
+            //    TYPE = 5,
+            //    APPLYAT = DateTime.Now,
+            //    ALARM = false
             //};
             //service.Add(ent);
+
             //var lsit = service.FindAll(string.Empty);
             //var pager = service.GetPager(1, 3, string.Empty);
 
-            //var ent = service.Get(274);
-            //ent.DICT_VALUE = "TestValue2";
+            //var ent = service.Get("241");
+            //ent.NAME = "测试修改241";
             //service.Update(ent);
             //service.Delete(ent.ID);
         }

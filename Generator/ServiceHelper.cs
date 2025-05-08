@@ -42,14 +42,7 @@ namespace CodeGenerator.Generator
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
                 string cSharpType = string.Empty;
-                if (type == DatabaseType.Dm)
-                {
-                    cSharpType = DmToCSharpByType(keyColumn.Type);
-                }
-                else if (type == DatabaseType.Mysql)
-                {
-                    cSharpType = MysqlToCSharpByType(keyColumn.Type);
-                }
+                cSharpType = ToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -88,14 +81,7 @@ namespace CodeGenerator.Generator
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
                 string cSharpType = string.Empty;
-                if (type == DatabaseType.Dm)
-                {
-                    cSharpType = DmToCSharpByType(keyColumn.Type);
-                }
-                else if (type == DatabaseType.Mysql)
-                {
-                    cSharpType = MysqlToCSharpByType(keyColumn.Type);
-                }
+                cSharpType = ToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -274,14 +260,7 @@ namespace CodeGenerator.Generator
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
                 string cSharpType = string.Empty;
-                if (type == DatabaseType.Dm)
-                {
-                    cSharpType = DmToCSharpByType(keyColumn.Type);
-                }
-                else if (type == DatabaseType.Mysql)
-                {
-                    cSharpType = MysqlToCSharpByType(keyColumn.Type);
-                }
+                cSharpType = ToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);

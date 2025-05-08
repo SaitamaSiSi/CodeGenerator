@@ -10,6 +10,7 @@ using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Xml.XPath;
 using Zyh.Common.Entity;
 
 namespace CodeGenerator.Generator
@@ -88,47 +89,26 @@ namespace CodeGenerator.Generator
             return sb.ToString();
         }
 
-        protected static string DmToCSharpByType(string dmDataType)
+        /// <summary>
+        /// 所有数据库都通过这个转换Csharp实体类型数据
+        /// 具体的type来源可参考下方xxxToDbType方法
+        /// 后续可能需要补充
+        /// </summary>
+        /// <param name="sqlDataType"></param>
+        /// <returns></returns>
+        protected static string ToCSharpByType(string sqlDataType)
         {
-            switch (dmDataType.ToUpper())
+            string type = sqlDataType.ToUpper();
+            // opengauss特殊处理
+            if (type.Contains("TIMESTAMP"))
             {
-                case "CHAR":
-                case "VARCHAR":
-                case "VARCHAR2":
-                case "CLOB":
-                case "TEXT":
-                default:
-                    return "String";
-                case "SMALLINT":
-                    return "Int16";
-                case "DECIMAL":
-                    return "Decimal";
-                case "NUMBER":
-                case "INT":
-                case "INTEGER":
-                    return "Int32";
-                case "BIGINT":
-                    return "Int64";
-                case "FLOAT":
-                    return "Float";
-                case "DOUBLE":
-                    return "Double";
-                case "DATE":
-                case "DATETIME":
-                case "TIMESTAMP":
-                    return "DateTime";
-                case "BOOLEAN":
-                case "TINYINT":
-                case "BIT":
-                    return "Boolean";
-                case "BLOB":
-                    return "Byte[]";
+                return "DateTime";
             }
-        }
-
-        protected static string MysqlToCSharpByType(string mysqlDataType)
-        {
-            switch (mysqlDataType.ToUpper())
+            else if (type.Contains("CHARACTER VARYING"))
+            {
+                return "String";
+            }
+            switch (type)
             {
                 case "CHAR":
                 case "VARCHAR":
@@ -243,6 +223,52 @@ namespace CodeGenerator.Generator
             }
         }
 
+        protected static string OpengaussToDbType(string opengaussDataType)
+        {
+            string type = opengaussDataType.ToUpper();
+            // 特殊处理
+            if (type.Contains("TIMESTAMP"))
+            {
+                return "NpgsqlTypes.NpgsqlDbType.Timestamp";
+            }
+            else if (type.Contains("CHARACTER VARYING"))
+            {
+                return "NpgsqlTypes.NpgsqlDbType.Varchar";
+            }
+            switch (opengaussDataType.ToUpper())
+            {
+                case "CHAR":
+                    return "NpgsqlTypes.NpgsqlDbType.Char";
+                case "VARCHAR":
+                case "VARCHAR2":
+                default:
+                    return "NpgsqlTypes.NpgsqlDbType.Varchar";
+                case "TEXT":
+                    return "NpgsqlTypes.NpgsqlDbType.Text";
+                case "SMALLINT":
+                case "TINYINT":
+                    return "NpgsqlTypes.NpgsqlDbType.Smallint";
+                case "NUMBER":
+                case "INT":
+                case "INTEGER":
+                    return "NpgsqlTypes.NpgsqlDbType.Integer";
+                case "BIGINT":
+                    return "NpgsqlTypes.NpgsqlDbType.Bigint";
+                case "FLOAT":
+                    return "NpgsqlTypes.NpgsqlDbType.Real";
+                case "DOUBLE":
+                    return "NpgsqlTypes.NpgsqlDbType.Double";
+                case "DATE":
+                    return "NpgsqlTypes.NpgsqlDbType.Date";
+                case "BOOLEAN":
+                    return "NpgsqlTypes.NpgsqlDbType.Boolean";
+                case "BIT":
+                    return "NpgsqlTypes.NpgsqlDbType.Bit";
+                case "BLOB":
+                    return "NpgsqlTypes.NpgsqlDbType.Bytea";
+            }
+        }
+
         #endregion
 
         #region 类相关操作
@@ -255,6 +281,8 @@ namespace CodeGenerator.Generator
                     return "Dm";
                 case DatabaseType.Mysql:
                     return "Mysql";
+                case DatabaseType.OpenGauss:
+                    return "Opengauss";
                 default:
                     return string.Empty;
             }

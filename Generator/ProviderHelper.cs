@@ -29,7 +29,7 @@ namespace CodeGenerator.Generator
             {
                 return ":";
             }
-            else if (type == DatabaseType.Mysql)
+            else if (type == DatabaseType.Mysql || type == DatabaseType.OpenGauss)
             {
                 return "@";
             }
@@ -46,6 +46,10 @@ namespace CodeGenerator.Generator
             {
                 return "MySqlCommand";
             }
+            else if (type == DatabaseType.OpenGauss)
+            {
+                return "NpgsqlCommand";
+            }
             return string.Empty;
         }
 
@@ -58,6 +62,10 @@ namespace CodeGenerator.Generator
             else if (type == DatabaseType.Mysql)
             {
                 return "MySqlParameter";
+            }
+            else if (type == DatabaseType.OpenGauss)
+            {
+                return "NpgsqlParameter";
             }
             return string.Empty;
         }
@@ -188,9 +196,9 @@ WHERE";
             return $"protected const string Delete_{className}_Sql = @\"{sql}\";";
         }
 
-        private static string GetReaderSentence(ColumnParam column, ref int index, bool flag = false)
+        private static string GetReaderSentence(ColumnParam column, ref int index, DatabaseType type, bool flag = false)
         {
-            string cSharpType = DmToCSharpByType(column.Type);
+            string cSharpType = ToCSharpByType(column.Type);
             string sentence = $"{(string.Equals(column.IsNullable, "Y") ? $"({cSharpType}?)" : "")}";
 
             switch (cSharpType)
@@ -215,11 +223,11 @@ WHERE";
                     {
                         if (flag)
                         {
-                            sentence += $"Convert.ToBoolean(reader.GetByte(reader.GetOrdinal(\"{column.Name}\")))";
+                            sentence += (type == DatabaseType.OpenGauss ? $"reader.GetBoolean(reader.GetOrdinal(\"{column.Name}\"))" : $"Convert.ToBoolean(reader.GetByte(reader.GetOrdinal(\"{column.Name}\")))");
                         }
                         else
                         {
-                            sentence += $"Convert.ToBoolean(reader.GetByte(start + {index}))";
+                            sentence += (type == DatabaseType.OpenGauss ? $"reader.GetBoolean(start + {index})" : $"Convert.ToBoolean(reader.GetByte(start + {index}))");
                         }
                         break;
                     }
@@ -231,7 +239,7 @@ WHERE";
             return retStr;
         }
 
-        private static CodeMemberMethod GetProviderFill1(string entityName, List<ColumnParam> columns)
+        private static CodeMemberMethod GetProviderFill1(string entityName, List<ColumnParam> columns, DatabaseType type)
         {
             //添加方法
             CodeMemberMethod method = new CodeMemberMethod();
@@ -255,7 +263,7 @@ WHERE";
             int index = 0;
             foreach (var col in columns)
             {
-                string sentence = GetReaderSentence(col, ref index);
+                string sentence = GetReaderSentence(col, ref index, type);
                 retStr += GetNewLine(3) + sentence;
             }
             retStr += GetNewLine(3) + "return ent;";
@@ -264,7 +272,7 @@ WHERE";
             return method;
         }
 
-        private static CodeMemberMethod GetProviderFill2(string entityName, List<ColumnParam> columns)
+        private static CodeMemberMethod GetProviderFill2(string entityName, List<ColumnParam> columns, DatabaseType type)
         {
             //添加方法
             CodeMemberMethod method = new CodeMemberMethod();
@@ -282,7 +290,7 @@ WHERE";
             int index = 0;
             foreach (var col in columns)
             {
-                string sentence = GetReaderSentence(col, ref index, true);
+                string sentence = GetReaderSentence(col, ref index, type, true);
                 retStr += GetNewLine(3) + sentence;
             }
             retStr += GetNewLine(3) + "return ent;";
@@ -323,6 +331,10 @@ WHERE";
                 else if (type == DatabaseType.Mysql)
                 {
                     retStr += MysqlToDbType(col.Type);
+                }
+                else if (type == DatabaseType.OpenGauss)
+                {
+                    retStr += OpengaussToDbType(col.Type);
                 }
                 retStr += ") {" + $" Value = ent.{col.Name}, Direction = ParameterDirection.Input " + "};";
             }
@@ -366,6 +378,10 @@ WHERE";
                 {
                     retStr += MysqlToDbType(col.Type);
                 }
+                else if (type == DatabaseType.OpenGauss)
+                {
+                    retStr += OpengaussToDbType(col.Type);
+                }
                 retStr += ") {" + $" Value = ent.{colName}, Direction = ParameterDirection.Input " + "});";
             }
 
@@ -403,6 +419,10 @@ WHERE";
                 {
                     retStr += MysqlToDbType(col.Type);
                 }
+                else if (type == DatabaseType.OpenGauss)
+                {
+                    retStr += OpengaussToDbType(col.Type);
+                }
                 retStr += ") {" + $" Value = ent.{col.Name}, Direction = ParameterDirection.Input " + "};";
             }
 
@@ -429,7 +449,7 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = DmToCSharpByType(keyColumn.Type);
+                string cSharpType = ToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -441,6 +461,10 @@ WHERE";
                 else if (type == DatabaseType.Mysql)
                 {
                     providerDbType = MysqlToDbType(keyColumn.Type);
+                }
+                else if (type == DatabaseType.OpenGauss)
+                {
+                    providerDbType += OpengaussToDbType(keyColumn.Type);
                 }
                 retStr += GetNewLine(3) + $"cmd.Parameters.Add(new {DmParameterStr(type)}(\"{colName}\", {providerDbType}) " + "{" + $" Value = {paramName}, Direction = ParameterDirection.Input " + "});";
             }
@@ -471,7 +495,7 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = DmToCSharpByType(keyColumn.Type);
+                string cSharpType = ToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -483,6 +507,10 @@ WHERE";
                 else if (type == DatabaseType.Mysql)
                 {
                     providerDbType = MysqlToDbType(keyColumn.Type);
+                }
+                else if (type == DatabaseType.OpenGauss)
+                {
+                    providerDbType += OpengaussToDbType(keyColumn.Type);
                 }
                 retStr += GetNewLine(3) + $"cmd.Parameters.Add(new {DmParameterStr(type)}(\"{colName}\", {providerDbType}) " + "{" + $" Value = {paramName}, Direction = ParameterDirection.Input " + "});";
             }
@@ -705,7 +733,7 @@ WHERE";
             foreach (var keyColumn in keyColumns)
             {
                 string paramName = ConvertToCamelCase(keyColumn.Name, true);
-                string cSharpType = DmToCSharpByType(keyColumn.Type);
+                string cSharpType = ToCSharpByType(keyColumn.Type);
                 method.Parameters.Add(new CodeParameterDeclarationExpression(cSharpType, paramName));
 
                 string colName = ConvertToCamelCase(keyColumn.Name);
@@ -717,6 +745,10 @@ WHERE";
                 else if (type == DatabaseType.Mysql)
                 {
                     providerDbType = MysqlToDbType(keyColumn.Type);
+                }
+                else if (type == DatabaseType.OpenGauss)
+                {
+                    providerDbType = OpengaussToDbType(keyColumn.Type);
                 }
                 retStr += GetNewLine(3) + $"cmd.Parameters.Add(new {DmParameterStr(type)}(\"{colName}\", {providerDbType}) " + "{" + $" Value = {paramName}, Direction = ParameterDirection.Input " + "});";
             }
@@ -749,6 +781,10 @@ WHERE";
             else if (type == DatabaseType.Mysql)
             {
                 myNamespace.Imports.Add(new CodeNamespaceImport("MySqlConnector"));
+            }
+            else if (type == DatabaseType.OpenGauss)
+            {
+                myNamespace.Imports.Add(new CodeNamespaceImport("Npgsql"));
             }
 
             //Code:代码体
@@ -875,8 +911,8 @@ WHERE";
             CodeMemberMethod buildParametersForNonKey = GetProviderBuildParametersForNonKey(entityName, columns, type);
 
             // Fill Data
-            CodeMemberMethod fill1 = GetProviderFill1(entityName, columns);
-            CodeMemberMethod fill2 = GetProviderFill2(entityName, columns);
+            CodeMemberMethod fill1 = GetProviderFill1(entityName, columns, type);
+            CodeMemberMethod fill2 = GetProviderFill2(entityName, columns, type);
 
             CodeRegionDirective start = new CodeRegionDirective(CodeRegionMode.Start, "CRUD");
             CodeRegionDirective end = new CodeRegionDirective(CodeRegionMode.End, "CRUD");

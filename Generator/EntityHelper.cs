@@ -176,14 +176,7 @@ namespace CodeGenerator.Generator
             {
                 string fieldName = ConvertToCamelCase(item.Name);
                 string cSharpType = string.Empty;
-                if (type == DatabaseType.Dm)
-                {
-                    cSharpType = DmToCSharpByType(item.Type) + (string.Equals(item.IsNullable, "Y", StringComparison.OrdinalIgnoreCase) ? "?" : "");
-                }
-                else if (type == DatabaseType.Mysql)
-                {
-                    cSharpType = MysqlToCSharpByType(item.Type) + (string.Equals(item.IsNullable, "YES", StringComparison.OrdinalIgnoreCase) ? "?" : "");
-                }
+                cSharpType = ToCSharpByType(item.Type) + (item.IsNullable.ToUpper().Contains("Y") ? "?" : "");
                 CodeMemberField field = new CodeMemberField(cSharpType, fieldName);
                 //设置访问类型
                 field.Attributes = MemberAttributes.Private;

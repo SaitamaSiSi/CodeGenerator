@@ -38,10 +38,11 @@ public partial class WindowsTitleBar : UserControl
         InitializeComponent();
         Loaded += WindowLoaded;
         PointerPressed += WindowsTitleBarPointerPressed;
+        btn_min.Click += MinWindow;
         btn_close.Click += CloseWindow;
     }
 
-    private void WindowLoaded(object sender, RoutedEventArgs e)
+    private void WindowLoaded(object? sender, RoutedEventArgs e)
     {
         var root = this.GetVisualRoot();
         if (root != null && root is Window parentWindow && RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -63,7 +64,14 @@ public partial class WindowsTitleBar : UserControl
         }
     }
 
-    private void CloseWindow(object sender, RoutedEventArgs e)
+    private void MinWindow(object? sender, RoutedEventArgs e)
+    {
+        if (VisualRoot != null && VisualRoot is Window hostWindow)
+        {
+        }
+    }
+
+    private void CloseWindow(object? sender, RoutedEventArgs e)
     {
         if (VisualRoot != null && VisualRoot is Window hostWindow)
         {

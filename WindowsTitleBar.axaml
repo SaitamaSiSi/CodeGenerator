@@ -2,8 +2,8 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="22"
-        x:Class="CodeGenerator.WindowsTitleBar">
+             mc:Ignorable="d" d:DesignWidth="300" d:DesignHeight="30"
+             x:Class="CodeGenerator.WindowsTitleBar">
 	<DockPanel x:Name="sys_bar">
 		<StackPanel Orientation="Horizontal"
 					DockPanel.Dock="Left"
@@ -16,15 +16,15 @@
 				x:Name="sys_title"
 				Margin="5 0 0 0"/>
 		</StackPanel>
-		<StackPanel Height="22"
+		<StackPanel Height="30"
 					HorizontalAlignment="Right"
 					Orientation="Horizontal"
 					Spacing="0"
 					VerticalAlignment="Top">
-			<Button Width="46"
+			<Button Width="36"
 					VerticalAlignment="Stretch"
 					BorderThickness="0"
-					x:Name="btn_close">
+					x:Name="btn_min">
 				<Button.Resources>
 					<CornerRadius x:Key="ControlCornerRadius">0</CornerRadius>
 				</Button.Resources>
@@ -42,9 +42,35 @@
 						<Setter Property="Fill" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
 					</Style>
 				</Button.Styles>
-				<Path Margin="10,1,10,0"
+				<Path Margin="5"
+					  Stroke="Black"
+					  StrokeThickness="1"
+					  Data="M10 5 L0 5"/>
+			</Button>
+			<Button Width="36"
+					VerticalAlignment="Stretch"
+					BorderThickness="0"
+					x:Name="btn_close">
+				<Button.Resources>
+					<CornerRadius x:Key="ControlCornerRadius">1</CornerRadius>
+				</Button.Resources>
+				<Button.Styles>
+					<Style Selector="Button:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+						<Setter Property="Background" Value="Red"/>
+					</Style>
+					<Style Selector="Button:not(:pointerover) /template/ ContentPresenter#PART_ContentPresenter">
+						<Setter Property="Background" Value="Transparent"/>
+					</Style>
+					<Style Selector="Button:pointerover > Path">
+						<Setter Property="Fill" Value="White"/>
+					</Style>
+					<Style Selector="Button:not(:pointerover) > Path">
+						<Setter Property="Fill" Value="{DynamicResource SystemControlForegroundBaseHighBrush}"/>
+					</Style>
+				</Button.Styles>
+				<Path Margin="5"
 					  Stretch="Uniform"
-					  Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z"></Path>
+					  Data="M1169 1024l879 -879l-145 -145l-879 879l-879 -879l-145 145l879 879l-879 879l145 145l879 -879l879 879l145 -145z" />
 			</Button>
 		</StackPanel>
 	</DockPanel>

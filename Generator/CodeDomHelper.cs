@@ -9,8 +9,8 @@ using System.CodeDom;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
-using System.Xml.XPath;
 using Zyh.Common.Entity;
 
 namespace CodeGenerator.Generator
@@ -266,6 +266,34 @@ namespace CodeGenerator.Generator
                     return "NpgsqlTypes.NpgsqlDbType.Bit";
                 case "BLOB":
                     return "NpgsqlTypes.NpgsqlDbType.Bytea";
+            }
+        }
+
+        protected static string SupportTypes(DatabaseType database)
+        {
+            switch (database)
+            {
+                case DatabaseType.Dm:
+                    {
+                        var dbTypes = Enum.GetValues(typeof(Dm.DmDbType))
+                             .Cast<Dm.DmDbType>();
+                        return string.Join(",", dbTypes.Select(type => "Dm.DmDbType." + type));
+                    }
+                case DatabaseType.Mysql:
+                    {
+                        var dbTypes = Enum.GetValues(typeof(MySqlConnector.MySqlDbType))
+                             .Cast<MySqlConnector.MySqlDbType>();
+                        return string.Join(",", dbTypes.Select(type => "MySqlConnector.MySqlDbType." + type));
+                    }
+                case DatabaseType.OpenGauss:
+                    {
+                        // https://www.postgresql.org/docs/current/datatype.html
+                        var dbTypes = Enum.GetValues(typeof(NpgsqlTypes.NpgsqlDbType))
+                             .Cast<NpgsqlTypes.NpgsqlDbType>();
+                        return string.Join(",", dbTypes.Select(type => "NpgsqlTypes.NpgsqlDbType." + type));
+                    }
+                default:
+                    return string.Empty;
             }
         }
 

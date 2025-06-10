@@ -38,5 +38,23 @@ namespace CodeGenerator.Core
 
             return handler.Handle(command);
         }
+
+        public static ResultMessage<TOut> ExecuteSql<TIn, TOut>(TIn command)
+            where TIn : class, ICommand
+        {
+            if (command == null)
+            {
+                return ResultMessage<TOut>.Fail($"参数异常, command不能为空。", default(TOut));
+            }
+
+            var handler = GetHandler<TIn, TOut>(command);
+
+            if (handler == null)
+            {
+                return ResultMessage<TOut>.Fail($"实现方法不能为空（不支持该方法）。", default(TOut), -1);
+            }
+
+            return handler.HandleSql(command);
+        }
     }
 }

@@ -20,6 +20,7 @@ namespace CodeGenerator
     {
         private readonly bool IsProduction = false;
         DatabaseConfig config = new();
+        private string currentSchema = "";
 
         #region 构造和初始化
 
@@ -209,6 +210,18 @@ namespace CodeGenerator
         }
 
         /// <summary>
+        /// 弹出sql执行窗口
+        /// </summary>
+        private void ShowSqlCmdWindow()
+        {
+            SqlCmdWindow sqlCmdWindow = new(config, currentSchema)
+            {
+                SqlCallback = SqlCallback
+            };
+            sqlCmdWindow.ShowDialog(this);
+        }
+
+        /// <summary>
         /// 窗口返回事件
         /// </summary>
         /// <param name="result"></param>
@@ -238,6 +251,14 @@ namespace CodeGenerator
             }
         }
 
+        /// <summary>
+        /// Sql执行回调方法
+        /// </summary>
+        private void SqlCallback()
+        {
+            Environment.SetEnvironmentVariable("DefaultConnectionString", config.GetConnectStr());
+        }
+
         #endregion
 
         #region 控件触发事件
@@ -257,6 +278,7 @@ namespace CodeGenerator
                     // 模式
                     List<TreeNode> tableNodes = new List<TreeNode>();
                     Dictionary<string, string> tableInfos = GetTableNames(ent.Title);
+                    currentSchema = ent.Title;
                     foreach (var info in tableInfos)
                     {
                         tableNodes.Add(new TreeNode()
@@ -396,6 +418,16 @@ namespace CodeGenerator
             {
                 ChangeShowMsg("没有模式");
             }
+        }
+
+        /// <summary>
+        /// sql执行按钮事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnSqlClick(object? sender, RoutedEventArgs e)
+        {
+            ShowSqlCmdWindow();
         }
 
         /// <summary>

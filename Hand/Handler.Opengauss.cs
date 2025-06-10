@@ -14,5 +14,10 @@ namespace CodeGenerator.Hand
 
             return ResultMessage<CmdResCode>.Successful("生成完毕", command.Code);
         }
+
+        public ResultMessage<CmdResCode> HandleSql(OpengaussCmd command)
+        {
+            return ResultMessage<CmdResCode>.Successful("TODO", command.Code);
+        }
     }
 }

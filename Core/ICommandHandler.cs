@@ -13,5 +13,6 @@ namespace CodeGenerator.Core
         //where TOut : class, ICommand
     {
         ResultMessage<TOut> Handle(TIn command);
+        ResultMessage<TOut> HandleSql(TIn command);
     }
 }

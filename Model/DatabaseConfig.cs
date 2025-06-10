@@ -20,20 +20,25 @@ namespace CodeGenerator.Model
         /// </summary>
         /// <param name="database"></param>
         /// <returns></returns>
-        public string GetConnectStr(string database = "postgres")
+        public string GetConnectStr(string database = "")
         {
+            string databaseStr = string.Empty;
             if (DbType == DatabaseType.Dm)
             {
-                return $"Server={IP};PORT={Port};USER ID={UserName};PWD={Password};"; // SCHEMA=TEST_DB;
+                databaseStr = string.IsNullOrEmpty(database) ? "" : $"Database={database.ToLower()};SCHEMA={database.ToLower()};";
+                return $"Server={IP};PORT={Port};{databaseStr}USER ID={UserName};PWD={Password};"; // SCHEMA=TEST_DB;
             }
             else if (DbType == DatabaseType.Mysql)
             {
-                return $"Server={IP};port={Port};user={UserName};password={Password};"; // database=test_db;
+                databaseStr = string.IsNullOrEmpty(database) ? "" : $"Database={database.ToLower()};";
+                return $"Server={IP};port={Port};{databaseStr}user={UserName};password={Password};"; // database=test_db;
             }
             else if (DbType == DatabaseType.OpenGauss)
             {
+                database = string.IsNullOrEmpty(database) ? "postgres" : database;
+                databaseStr = $"Database={database.ToLower()};";
                 // PostgreSQL类型数据库必须指定已存在数据库连接，此处连接默认数据库
-                return $"Host={IP};Port={Port};Database={database.ToLower()};Username ={UserName};PASSWORD={Password};No Reset On Close=true"; // database=test_db;
+                return $"Host={IP};Port={Port};{databaseStr}Username ={UserName};PASSWORD={Password};No Reset On Close=true"; // database=test_db;
             }
             else
             {

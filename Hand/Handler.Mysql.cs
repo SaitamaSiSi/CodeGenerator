@@ -21,5 +21,10 @@ namespace CodeGenerator.Hand
 
             return ResultMessage<CmdResCode>.Successful("生成完毕", command.Code);
         }
+
+        public ResultMessage<CmdResCode> HandleSql(MysqlCmd command)
+        {
+            return ResultMessage<CmdResCode>.Successful("TODO", command.Code);
+        }
     }
 }

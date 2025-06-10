@@ -1,0 +1,65 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        x:Class="CodeGenerator.SqlCmdWindow"
+		xmlns:local="clr-namespace:CodeGenerator"
+		Width="400" Height="300"
+		mc:Ignorable="d"
+		WindowStartupLocation="CenterOwner"
+		ShowInTaskbar="False"
+		ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaChromeHints="NoChrome"
+        ExtendClientAreaTitleBarHeightHint="-1"
+		CanResize="False">
+	<Window.Styles>
+		<Style Selector="Button:pointerover">
+			<Setter Property="Cursor" Value="Hand"/>
+		</Style>
+		<Style Selector="Button:focus">
+			<Setter Property="Background" Value="Gray"/>
+		</Style>
+	</Window.Styles>
+	<Grid Margin="5 5 5 5">
+		<Grid.RowDefinitions>
+			<RowDefinition Height="1*"/>
+			<RowDefinition Height="2*"/>
+			<RowDefinition Height="5*"/>
+			<RowDefinition Height="5*"/>
+		</Grid.RowDefinitions>
+		<Border Grid.Row="0">
+			<local:WindowsTitleBar x:Name="title_bar" />
+		</Border>
+		<Border Grid.Row="1" Background="LightGray">
+			<Button Content="执行" Click="BtnExecuteClick" Margin="10 0 0 0" />
+		</Border>
+		<Border Grid.Row="2" Background="LightGray">
+			<TextBox
+				x:Name="sql_table"
+				HorizontalAlignment="Left"
+				VerticalAlignment="Center"
+				Margin="10,0,0,0"
+				Width="370"
+				Height="100"
+				Watermark="sql语句"
+				Text="" />
+		</Border>
+		<Border Grid.Row="3" Background="LightGray">
+			<DockPanel>
+				<DataGrid
+					x:Name="sql_data"
+					AutoGenerateColumns="False"
+					IsVisible="False" />
+				<TextBox
+					x:Name="sql_err"
+					HorizontalAlignment="Left"
+					VerticalAlignment="Center"
+					Margin="10,0,0,0"
+					Width="370"
+					Height="100"
+					Text=""
+					IsVisible="False" />
+			</DockPanel>
+		</Border>
+	</Grid>
+</Window>

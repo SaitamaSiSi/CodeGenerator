@@ -69,6 +69,7 @@ public partial class SqlCmdWindow : Window
                 return;
             }
             dataGrid.Columns.Clear();
+            dataGrid.ItemsSource = null;
 
             using var scope = DataContextScope.GetCurrent().Begin();
             using var cmd = scope.DataContext.DatabaseObject.GetSqlStringCommand(sql_table.Text);

@@ -43,6 +43,8 @@
 				Width="370"
 				Height="100"
 				Watermark="sql语句"
+				AcceptsReturn="True"
+				TextWrapping="Wrap"
 				Text="" />
 		</Border>
 		<Border Grid.Row="3" Background="LightGray">

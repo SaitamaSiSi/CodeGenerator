@@ -337,7 +337,7 @@ namespace CodeGenerator
             }
             else
             {
-                _ = TipWindow.Show(this, "取消连接", "提示");
+                TipWindow.Show(this, "取消连接", "提示消息");
             }
         }
 

@@ -11,11 +11,10 @@ public partial class TipWindow : Window
         InitializeComponent();
     }
 
-    public TipWindow(string msg, string title)
+    public TipWindow(string msg)
     {
         InitializeComponent();
 
-        this.Title = title;
         show_text.Text = msg;
     }
 
@@ -26,11 +25,13 @@ public partial class TipWindow : Window
     /// <param name="message"></param>
     /// <param name="title"></param>
     /// <returns></returns>
-    public static async Task<bool> Show(Window owner, string message, string title)
+    public static void Show(Window owner, string message, string title)
     {
-        var dialog = new TipWindow(message, title);
-        var result = await dialog.ShowDialog<bool?>(owner);
-        return result.HasValue && result.Value;
+        var dialog = new TipWindow(message)
+        {
+            Title = title
+        };
+        dialog.ShowDialog(owner);
     }
 
     /// <summary>

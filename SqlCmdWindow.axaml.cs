@@ -73,27 +73,36 @@ public partial class SqlCmdWindow : Window
             using var scope = DataContextScope.GetCurrent().Begin();
             using var cmd = scope.DataContext.DatabaseObject.GetSqlStringCommand(sql_table.Text);
             using var reader = scope.DataContext.ExecuteReader(cmd);
-            for (int i = 0; i < reader.FieldCount; i++)
+            if (reader.FieldCount == 0)
             {
-                string columnName = reader.GetName(i);
-                dataGrid.Columns.Add(new DataGridTextColumn
-                {
-                    Header = columnName,
-                    Binding = new Binding($"[{columnName}]")
-                });
+                sql_data.IsVisible = false;
+                sql_err.IsVisible = true;
+                sql_err.Text = $"Ö´ÐÐ SQL Óï¾ä³É¹¦";
             }
-            var itemSource = new ObservableCollection<dynamic>();
-            while (reader.Read())
+            else
             {
-                dynamic ent = new ExpandoObject();
-                var entDict = (IDictionary<string, object?>)ent;
                 for (int i = 0; i < reader.FieldCount; i++)
                 {
-                    entDict.Add(reader.GetName(i), reader.GetValue(i));
+                    string columnName = reader.GetName(i);
+                    dataGrid.Columns.Add(new DataGridTextColumn
+                    {
+                        Header = columnName,
+                        Binding = new Binding($"[{columnName}]")
+                    });
                 }
-                itemSource.Add(ent);
+                var itemSource = new ObservableCollection<dynamic>();
+                while (reader.Read())
+                {
+                    dynamic ent = new ExpandoObject();
+                    var entDict = (IDictionary<string, object?>)ent;
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        entDict.Add(reader.GetName(i), reader.GetValue(i));
+                    }
+                    itemSource.Add(ent);
+                }
+                dataGrid.ItemsSource = itemSource;
             }
-            dataGrid.ItemsSource = itemSource;
         }
         catch (Exception ex)
         {

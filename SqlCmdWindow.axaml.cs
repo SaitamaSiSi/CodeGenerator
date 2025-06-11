@@ -98,7 +98,23 @@ public partial class SqlCmdWindow : Window
                     var entDict = (IDictionary<string, object?>)ent;
                     for (int i = 0; i < reader.FieldCount; i++)
                     {
-                        entDict.Add(reader.GetName(i), reader.GetValue(i));
+                        var dataType = reader.GetDataTypeName(i);
+                        if (dataType.ToLower().StartsWith("timestamp"))
+                        {
+                            DateTime timestamp = reader.GetDateTime(i);
+                            string time = timestamp.ToString("yyyy-MM-dd HH:mm:ss.ffffff").TrimEnd('0');
+                            entDict.Add(reader.GetName(i), time);
+                        }
+                        else if (string.Equals("date", dataType, StringComparison.OrdinalIgnoreCase))
+                        {
+                            DateTime timestamp = reader.GetDateTime(i);
+                            string time = timestamp.ToString("yyyy-MM-dd");
+                            entDict.Add(reader.GetName(i), time);
+                        }
+                        else
+                        {
+                            entDict.Add(reader.GetName(i), reader.GetValue(i));
+                        }
                     }
                     itemSource.Add(ent);
                 }

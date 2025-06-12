@@ -102,7 +102,7 @@ public partial class SqlCmdWindow : Window
                         if (dataType.ToLower().StartsWith("timestamp"))
                         {
                             DateTime timestamp = reader.GetDateTime(i);
-                            string time = timestamp.ToString("yyyy-MM-dd HH:mm:ss.ffffff").TrimEnd('0');
+                            string time = timestamp.ToString("yyyy-MM-dd HH:mm:ss.ffffff").TrimEnd('0').TrimEnd('.');
                             entDict.Add(reader.GetName(i), time);
                         }
                         else if (string.Equals("date", dataType, StringComparison.OrdinalIgnoreCase))
